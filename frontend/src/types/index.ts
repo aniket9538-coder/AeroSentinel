@@ -1,0 +1,187 @@
+export type UserRole = 'CITIZEN' | 'ANALYST' | 'AUTHORITY' | 'ADMIN';
+
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export type EventStatus = 'OPEN' | 'ASSIGNED' | 'FIELD_INSPECTION' | 'ACTION_TAKEN' | 'RESOLVED';
+
+export type AlertSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
+
+export interface City {
+  id: string;
+  name: string;
+  state: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  active: boolean;
+}
+
+export interface AirObservation {
+  id?: string;
+  stationId: string;
+  stationName: string;
+  latitude: number;
+  longitude: number;
+  observedAt: string;
+  pm25: number;
+  pm10?: number;
+  no2?: number;
+  so2?: number;
+  co?: number;
+  o3?: number;
+  aqi?: number;
+  source: string;
+}
+
+export interface WeatherObservation {
+  id?: string;
+  cityId: string;
+  latitude: number;
+  longitude: number;
+  observedAt: string;
+  temperature: number;
+  humidity: number;
+  windSpeed: number;
+  windDirection: number;
+  rainfall: number;
+  source: string;
+}
+
+export interface FireEvent {
+  id: string;
+  cityId: string;
+  latitude: number;
+  longitude: number;
+  detectedAt: string;
+  confidence: number;
+  frp?: number;
+  satellite: string;
+}
+
+export interface SatelliteObservation {
+  id: string;
+  h3Index: string;
+  observedAt: string;
+  no2Value?: number;
+  so2Value?: number;
+  aerosolIndicator?: number;
+  sourceProduct: string;
+}
+
+export interface HotspotPrediction {
+  id: string;
+  h3Index: string;
+  cityId: string;
+  predictedAt: string;
+  riskScore: number;
+  riskLevel: RiskLevel;
+  confidence: number;
+  primaryFactors?: string[];
+  modelVersion: string;
+}
+
+export interface HourlyForecast {
+  targetHour: number;
+  predictedPm25: number;
+  lowerBound?: number;
+  upperBound?: number;
+  confidence: number;
+}
+
+export interface CellForecast {
+  h3Index: string;
+  generatedAt: string;
+  unit: string;
+  forecast: HourlyForecast[];
+}
+
+export interface CitizenReport {
+  id: string;
+  cityId: string;
+  latitude: number;
+  longitude: number;
+  h3Index?: string;
+  category: 'SMOKE' | 'DUST' | 'BURNING' | 'ODOR' | 'OTHER';
+  description: string;
+  imageUrl?: string;
+  submittedAt: string;
+  status: 'PENDING' | 'VERIFIED' | 'DISMISSED';
+}
+
+export interface GeminiAnalysis {
+  id: string;
+  citizenReportId: string;
+  detectedCategory: string;
+  confidence: number;
+  narrativeSummary: string;
+  evidenceCorroborated: boolean;
+}
+
+export interface PollutionEvent {
+  id: string;
+  h3Index: string;
+  eventCode: string;
+  severity: RiskLevel;
+  status: EventStatus;
+  startedAt: string;
+  resolvedAt?: string;
+  evidenceList?: EventEvidence[];
+}
+
+export interface EventEvidence {
+  id: string;
+  sourceType: string;
+  evidenceKey: string;
+  evidenceValue: string;
+  weight: number;
+}
+
+export interface Alert {
+  id: string;
+  eventId?: string;
+  h3Index: string;
+  severity: AlertSeverity;
+  title: string;
+  message: string;
+  status: 'OPEN' | 'ACKNOWLEDGED' | 'RESOLVED';
+  createdAt: string;
+  acknowledgedAt?: string;
+}
+
+export interface AuthorityAction {
+  id: string;
+  alertId: string;
+  actionType: string;
+  actionDetails: string;
+  performedBy: string;
+  performedAt: string;
+}
+
+export interface Inspection {
+  id: string;
+  alertId: string;
+  assignedTeam: string;
+  scheduledAt: string;
+  findings?: string;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
+}
+
+export interface FederatedNode {
+  id: string;
+  nodeName: string;
+  cityId: string;
+  status: 'ONLINE' | 'OFFLINE' | 'TRAINING';
+  modelVersion: string;
+  lastUpdateAt: string;
+}
+
+export interface MonitoringRecommendation {
+  h3Index: string;
+  latitude: number;
+  longitude: number;
+  riskScore: number;
+  uncertainty: number;
+  stationDistanceKm: number;
+  priorityScore: number;
+  priorityLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+}
