@@ -1,0 +1,323 @@
+0: The following table documents all features and their roles:
+1: Feature Name
+2: Category
+3: Source
+4: Unit
+5: Window
+6: Spatial Scope
+7: Role
+8: temperature_2m
+9: Weather
+10: ERA5 Reanalysis
+11: ​
+12: ∘
+13: C
+14: Current
+15: T
+16: Point
+17: Predictor
+18: relative_humidity_2m
+19: Weather
+20: ERA5 Reanalysis
+21: %
+22: Current
+23: T
+24: Point
+25: Predictor
+26: surface_pressure
+27: Weather
+28: ERA5 Reanalysis
+29: hPa
+30: Current
+31: T
+32: Point
+33: Predictor
+34: wind_speed
+35: Weather
+36: ERA5 Reanalysis
+37: m/s
+38: Current
+39: T
+40: Point
+41: Predictor
+42: wind_direction
+43: Weather
+44: ERA5 Reanalysis
+45: Degrees
+46: Current
+47: T
+48: Point
+49: Predictor
+50: wind_u
+51: Weather
+52: ERA5 Reanalysis
+53: m/s
+54: Current
+55: T
+56: Point
+57: Predictor
+58: wind_v
+59: Weather
+60: ERA5 Reanalysis
+61: m/s
+62: Current
+63: T
+64: Point
+65: Predictor
+66: boundary_layer_height
+67: Weather
+68: ERA5 Reanalysis
+69: m
+70: Current
+71: T
+72: Point
+73: Predictor
+74: pm10
+75: Co-pollutant
+76: CAAQMS Ground
+77: μ
+78: g/m
+79: 3
+80: Current
+81: T
+82: Point
+83: Predictor
+84: no2
+85: Co-pollutant
+86: CAAQMS Ground
+87: μ
+88: g/m
+89: 3
+90: Current
+91: T
+92: Point
+93: Predictor
+94: so2
+95: Co-pollutant
+96: CAAQMS Ground
+97: μ
+98: g/m
+99: 3
+100: Current
+101: T
+102: Point
+103: Predictor
+104: co
+105: Co-pollutant
+106: CAAQMS Ground
+107: mg/
+108: m
+109: 3
+110: Current
+111: T
+112: Point
+113: Predictor
+114: ozone
+115: Co-pollutant
+116: CAAQMS Ground
+117: μ
+118: g/m
+119: 3
+120: Current
+121: T
+122: Point
+123: Predictor
+124: pm25_spatial_lag_mean
+125: Spatial Lag
+126: CAAQMS Neighbors
+127: μ
+128: g/m
+129: 3
+130: Current
+131: T
+132: k=1
+133: Neighbors
+134: Predictor (Leave-one-out)
+135: pm25_spatial_lag_std
+136: Spatial Lag
+137: CAAQMS Neighbors
+138: μ
+139: g/m
+140: 3
+141: Current
+142: T
+143: k=1
+144: Neighbors
+145: Predictor (Leave-one-out)
+146: fire_count_24h_25km
+147: Active Fire
+148: NASA FIRMS VIIRS
+149: Count
+150: T-24
+151: h
+152: ,T
+153: 25
+154: km
+155: buffer
+156: Predictor
+157: fire_frp_sum_24h_25km
+158: Active Fire
+159: NASA FIRMS VIIRS
+160: MW
+161: T-24
+162: h
+163: ,T
+164: 25
+165: km
+166: buffer
+167: Predictor
+168: fire_frp_mean_24h_25km
+169: Active Fire
+170: NASA FIRMS VIIRS
+171: MW
+172: T-24
+173: h
+174: ,T
+175: 25
+176: km
+177: buffer
+178: Predictor
+179: nearest_fire_distance_km
+180: Active Fire
+181: NASA FIRMS VIIRS
+182: km
+183: T-24
+184: h
+185: ,T
+186: Geodesic
+187: Predictor
+188: fire_frp_distance_decay
+189: Active Fire
+190: NASA FIRMS VIIRS
+191: MW/km
+192: T-24
+193: h
+194: ,T
+195: Geodesic decay
+196: Predictor
+197: fire_upwind_alignment_score
+198: Active Fire
+199: Plume
+200: ×
+201: Wind
+202: Scalar
+203: T-24
+204: h
+205: ,T
+206: Upwind corridor
+207: Predictor
+208: satellite_no2_trop
+209: Satellite
+210: Sentinel-5P TROPOMI
+211: mol/
+212: m
+213: 2
+214: Latest overpass
+215: Res 8 Hexagon
+216: Predictor
+217: satellite_cloud_fraction
+218: Satellite
+219: Sentinel-5P TROPOMI
+220: 0,1
+221: Latest overpass
+222: Res 8 Hexagon
+223: Predictor
+224: dist_to_nearest_industrial_km
+225: GIS Context
+226: MIDC Polygons
+227: km
+228: Static
+229: Geodesic
+230: Predictor
+231: dist_to_nearest_major_road_km
+232: GIS Context
+233: OpenStreetMap Roads
+234: km
+235: Static
+236: Geodesic
+237: Predictor
+238: industrial_zone_within_2km_flag
+239: GIS Context
+240: MIDC Polygons
+241: Binary
+242: Static
+243: 2
+244: km
+245: buffer
+246: Predictor
+247: sensitive_receptors_count_2km
+248: GIS Context
+249: Schools / Hospitals
+250: Count
+251: Static
+252: 2
+253: km
+254: buffer
+255: Predictor
+256: nearest_station_distance_km
+257: Topology
+258: Sensor Network
+259: km
+260: Static
+261: Geodesic
+262: Predictor & Confidence
+263: stations_within_5km_count
+264: Topology
+265: Sensor Network
+266: Count
+267: Static
+268: 5
+269: km
+270: buffer
+271: Predictor & Confidence
+272: monitoring_coverage_gap_flag
+273: Topology
+274: Spatial Index
+275: Binary
+276: Static
+277: Threshold
+278: >5
+279: km
+280: Predictor & Confidence
+281: hour_sin
+282: Temporal
+283: Timestamp
+284: Scalar
+285: Cyclical
+286: Global
+287: Predictor
+288: hour_cos
+289: Temporal
+290: Timestamp
+291: Scalar
+292: Cyclical
+293: Global
+294: Predictor
+295: day_of_week_sin
+296: Temporal
+297: Timestamp
+298: Scalar
+299: Cyclical
+300: Global
+301: Predictor
+302: day_of_week_cos
+303: Temporal
+304: Timestamp
+305: Scalar
+306: Cyclical
+307: Global
+308: Predictor
+309: is_weekend
+310: Temporal
+311: Timestamp
+312: Binary
+313: Discrete
+314: Global
+315: Predictor
+316: is_daytime
+317: Temporal
+318: Timestamp
+319: Binary
+320: Discrete
+321: Global
+322: Predictor

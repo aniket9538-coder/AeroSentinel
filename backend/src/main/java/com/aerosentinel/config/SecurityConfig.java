@@ -29,11 +29,15 @@ public class SecurityConfig {
             .cors(cors -> {})
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    "/api/v1/health",
                     "/api/v1/cities/**",
+                    "/api/v1/stations/**",
+                    "/api/v1/sensors/**",
                     "/api/v1/air/**",
                     "/api/v1/weather/**",
                     "/api/v1/fires/**",
                     "/api/v1/satellite/**",
+                    "/api/v1/grid",
                     "/api/v1/grid/**",
                     "/api/v1/hotspots/**",
                     "/api/v1/forecast/**",

@@ -1,97 +1,315 @@
-:root {
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
+/* ==========================================================================
+   AeroSentinel Design System — F0 Foundation
+   Environmental Intelligence Command Center
+   ========================================================================== */
+
+:root,
+[data-theme="dark"] {
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Dark Theme Palette (Deep Navy / Technical Teal) */
+  --bg-primary: #070d19;
+  --bg-secondary: #0c1527;
+  --bg-surface: #111d35;
+  --bg-surface-elevated: #182849;
+  --bg-card: rgba(17, 29, 53, 0.85);
+  --bg-card-hover: rgba(24, 40, 73, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.04);
   
-  /* Color Palette - Premium Climate Intelligence Theme */
-  --bg-primary: #0b0f19;
-  --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.75);
-  --bg-card-hover: rgba(31, 41, 55, 0.85);
-  --bg-glass: rgba(255, 255, 255, 0.05);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-focus: #38bdf8;
   
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --border-focus: #3b82f6;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
   
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  
+  --brand-primary: #38bdf8;
+  --brand-hover: #0ea5e9;
+  --brand-surface: rgba(56, 189, 248, 0.12);
+  --brand-border: rgba(56, 189, 248, 0.28);
+
   --accent-cyan: #06b6d4;
   --accent-blue: #3b82f6;
+  --accent-teal: #14b8a6;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
-  --accent-violet: #8b5cf6;
-  
-  /* Air Quality Colors */
+  --accent-purple: #a855f7;
+
+  /* Air Quality Standards (AQI) */
   --aqi-good: #10b981;
   --aqi-moderate: #f59e0b;
   --aqi-poor: #f97316;
   --aqi-very-poor: #ef4444;
   --aqi-severe: #881337;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 24px rgba(56, 189, 248, 0.15);
+
+  --map-tile-url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  --map-bg: #070d19;
+  --grid-pattern-color: rgba(56, 189, 248, 0.035);
 }
 
+[data-theme="light"] {
+  /* Light Theme Palette (Clean Off-White / Crisp Navy & Deep Teal) */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #ffffff;
+  --bg-glass: rgba(15, 23, 42, 0.02);
+
+  --border-subtle: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-focus: #0284c7;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --brand-primary: #0284c7;
+  --brand-hover: #0369a1;
+  --brand-surface: rgba(2, 132, 199, 0.08);
+  --brand-border: rgba(2, 132, 199, 0.25);
+
+  --accent-cyan: #0891b2;
+  --accent-blue: #2563eb;
+  --accent-teal: #0d9488;
+  --accent-emerald: #059669;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  --accent-purple: #9333ea;
+
+  /* Air Quality Standards (AQI) - Light */
+  --aqi-good: #059669;
+  --aqi-moderate: #d97706;
+  --aqi-poor: #ea580c;
+  --aqi-very-poor: #dc2626;
+  --aqi-severe: #701a75;
+
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 30px -4px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 0 20px rgba(2, 132, 199, 0.12);
+
+  --map-tile-url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  --map-bg: #f8fafc;
+  --grid-pattern-color: rgba(2, 132, 199, 0.035);
+}
+
+/* Base Reset & Typography */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
 }
 
-body {
+html, body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Subtle Technical Spatial Grid Pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, var(--grid-pattern-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-pattern-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 600;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-
-.glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* Layout Utilities */
-.container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
 }
 
-/* Leaflet Map overrides for dark theme */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content-area {
+  flex: 1;
+  padding: 1.75rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .content-area {
+    padding: 1rem;
+  }
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glass-panel:hover {
+  border-color: var(--border-medium);
+}
+
+/* Pulse Live Animation */
+@keyframes pulseGlow {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.live-indicator-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--aqi-good);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulseGlow 2s infinite;
+}
+
+/* Leaflet Overrides */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #0f172a !important;
+  background: var(--map-bg) !important;
   font-family: var(--font-body);
+  z-index: 10;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #1e293b !important;
-  color: #f8fafc !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border-medium) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
 }
 
 .leaflet-popup-tip {
-  background: #1e293b !important;
+  background: var(--bg-surface) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+}
+.leaflet-control-zoom a:hover {
+  background-color: var(--bg-surface-elevated) !important;
+}
+
+/* Custom Table Styles */
+.aero-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+
+.aero-table th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-glass);
+}
+
+.aero-table td {
+  padding: 0.9rem 1rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.aero-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.aero-table tbody tr:hover {
+  background-color: var(--brand-surface);
+}
+
+.aero-table tbody tr:last-child td {
+  border-bottom: none;
 }

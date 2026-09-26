@@ -56,6 +56,13 @@
             <artifactId>hibernate-spatial</artifactId>
         </dependency>
 
+        <!-- Uber H3 Spatial Indexing Library -->
+        <dependency>
+            <groupId>com.uber</groupId>
+            <artifactId>h3</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+
         <!-- Database Migrations -->
         <dependency>
             <groupId>org.flywaydb</groupId>

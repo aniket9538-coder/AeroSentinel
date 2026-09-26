@@ -1,0 +1,45 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [72.8777, 19.0760]
+      },
+      "properties": {
+        "station_id": "ST_001",
+        "station_name": "Bandra Kurla Complex",
+        "name": "Bandra Kurla Complex",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "country": "India",
+        "elevation_m": 8,
+        "status": "active"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [72.8697, 19.1136]
+      },
+      "properties": {
+        "station_id": "ST_002",
+        "station_name": "Andheri East",
+        "name": "Andheri East",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "country": "India",
+        "elevation_m": 12,
+        "status": "active"
+      }
+    }
+  ]
+}

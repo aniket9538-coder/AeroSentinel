@@ -119,6 +119,11 @@ ai-service/artifacts/encoders/*
 !ai-service/artifacts/encoders/.gitkeep
 ai-service/artifacts/explainers/*
 !ai-service/artifacts/explainers/.gitkeep
+ai-service/data/raw/*
+!ai-service/data/raw/.gitkeep
+ai-service/models/artifacts/*.joblib
+*.joblib
+*.nc
 
 # Temporary inspection folders
 _blueprint_temp/

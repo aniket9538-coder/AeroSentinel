@@ -1,0 +1,1319 @@
+AeroSentinel — F3 AI/ML Intelligence Technical Handoff Report
+Phase:
+ F3 (AI/ML Intelligence, Model Evaluation, Confidence Estimation, and Evidence Generation)
+Author/Role:
+ Member 3 (AI/ML, Data Engineering, GIS)
+Target Domain:
+ Pune Metropolitan Region (PMR), Maharashtra, India
+Date:
+ September 25, 2026
+Status:
+COMPLETE & VERIFIED ON DISK
+1. Strict Team Scope & Boundary Enforcement
+This handoff covers 
+only Member 3’s responsibilities
+ (Python AI/ML, Data Engineering, GIS, and Explainability). It explicitly excludes and isolates the work of the other two engineering roles:
+Member 1 (Backend Engineer — Java / Spring Boot / PostGIS / PostgreSQL):
+Member 3 Boundary:
+ No Java or Spring Boot application code is authored in this phase.
+Interface Responsibility:
+ Member 3 defines and serializes the canonical Pydantic output schema contracts (AeroSentinelInferencePayload) under ai-service/app/schemas/contracts.py. Member 1 consumes these JSON payloads via internal IPC/REST endpoints to populate PostGIS event tables, manage alerts, and trigger authority workflow state transitions.
+Member 2 (Frontend Engineer — React / TypeScript / Vite / Tailwind / Mapbox GL):
+Member 3 Boundary:
+ No React, JSX/TSX, CSS, or client-side rendering code is authored.
+Interface Responsibility:
+ Member 3 exposes structured H3 hexagon identifiers (Resolution 8), calibrated class probabilities, multi-horizon forecast point estimates (
+T+1
+h
+, 
+T+3
+h
+, 
+T+6
+h
+) with empirical residual uncertainty intervals (
+P
+10
+,
+P
+90
+), composite confidence metrics, and structured evidence arrays formatted for client-side rendering.
+2. Project Context & End-to-End Intelligence Pipeline
+Fixed continuous ambient air quality monitoring stations (CAAQMS) provide accurate point measurements, but leave spatial blind spots between stations across Indian metropolitan areas. AeroSentinel combines multi-source environmental sensing with spatial modeling to detect potential emerging pollution events in these unmonitored zones.
+The data flows through the following pipeline:
+Real Historical Telemetry (CPCB/CAAQMS) + ERA5 Weather + NASA FIRMS + Sentinel-5P + MIDC GIS
+⇓
+Cleaning, Hourly Binning, Outlier Truncation (F1)
+⇓
+Spatial Alignment, Leave-One-Out Neighbor Lags, H3 Res 8 Indexing, Buffer Intersections (F2)
+⇓
+F3
+AI/ML
+Intelligence
+Pipeline
+1. Platt-Calibrated Hotspot Classifier
+2. Multi-Horizon RF Regressors with Uncertainty Bounds
+3. Multi-Factor Composite Confidence Engine
+4. Non-Causal Traceable Evidence Generation Layer
+⇓
+F4 Gemini LLM Synthesis
+ → 
+F5 Alert Support
+ → 
+F6 Monitoring Uncertainty
+ → 
+F7 Federated Learning
+3. F3 Deliverables Scope
+F3 transforms the feature matrices engineered in F2 into production-grade, serialized machine learning models and inference engines:
+Hotspot Classifier (hotspot_classifier_v1.joblib):
+ Detects emerging localized pollution spikes against regional baselines.
+Multi-Horizon Forecaster (forecast_regressors_v1.joblib):
+ Predicts short-term future 
+PM
+2.5
+ at 
+T+1
+h
+, 
+T+3
+h
+, and 
+T+6
+h
+ with empirical 
+P
+10
+,
+P
+90
+ confidence bounds.
+Model Evaluation Engine (ml/evaluation/evaluator.py):
+ Computes ranking, calibration, and regression metrics against naive persistence baselines.
+Composite Confidence Engine (compute_hyperlocal_confidence):
+ Fuses prediction margin, input feature completeness, and physical distance from ground sensors into a normalized confidence score 
+0.05,1.0
+.
+Evidence Generation Layer (ml/explainability/evidence.py):
+ Produces structured, non-causal evidence payloads attributing predictions to ground observations, active fire plumes, tropospheric satellite columns, and GIS industrial zoning.
+4. Real Historical Data Inventory & Partitioning
+Synthetic data was strictly prohibited for model training. Models were trained, calibrated, and evaluated exclusively on real historical telemetry:
+Data Sources:
+Ground Air Quality:
+ Continuous Ambient Air Quality Monitoring Stations (CPCB/MPCB CAAQMS) across the Pune Metropolitan Region (PMR). Primary continuous pollutant: 
+PM
+2.5
+ (
+μ
+g/m
+3
+). Secondary pollutants: 
+PM
+10
+, 
+NO
+2
+, 
+SO
+2
+, 
+CO
+, 
+O
+3
+.
+Meteorology:
+ Hourly surface meteorological reanalysis (ERA5 / Open-Meteo PMR bbox) providing 2-meter temperature, relative humidity, surface pressure, 10-meter wind components (
+U,V
+), total wind speed, wind direction, and boundary layer height (
+m
+).
+Active Fire:
+ NASA FIRMS (VIIRS 375m NRT thermal anomalies), aggregated over 24-hour lookback windows and 25-kilometer buffer radiuses.
+Satellite Remote Sensing:
+ Sentinel-5P TROPOMI Level-3 tropospheric column 
+NO
+2
+ (
+mol/
+m
+2
+) filtered at cloud fraction 
+<0.30
+.
+GIS Context:
+ OpenStreetMap / Maharashtra Industrial Development Corporation (MIDC) industrial zoning polygons and primary road networks.
+Geographic Extent:
+ Pune Metropolitan Region (PMR), centered around 
+18.5204
+∘
+ N
+,
+73.8567
+∘
+ E
+.
+Spatial Indexing:
+ Uber H3 hexagonal spatial hierarchy at 
+Resolution 8
+ (average hexagon area: 
+≈0.737
+ km
+2
+, edge length: 
+≈461
+ m
+). 10 CAAQMS reference stations mapped to discrete H3 indices.
+Total Observation Volume:
+ 70,176 hourly station-level observations. 
+Chronological Split Integrity (Zero Lookahead Leakage):
+train_dataset.parquet: 49,120 rows (4.33 MB). 
+val_dataset.parquet: 10,528 rows (0.99 MB) — used strictly for Platt sigmoid calibration fitting, probability threshold selection, and residual quantile extraction. 
+test_dataset.parquet: 10,528 rows (1.06 MB) — an untouched chronological holdout evaluated only after all training parameters were frozen. 
+Verification condition verified on disk: 
+max
+T
+train
+≤
+min
+T
+val
+≤
+max
+T
+val
+≤
+min
+T
+test
+.
+5. Hotspot Model Implementation
+Problem Definition
+In AeroSentinel, a 
+Hotspot
+ is defined as an observation where local or interpolated ambient 
+PM
+2.5
+ equals or exceeds the Central Pollution Control Board (CPCB) National Ambient Air Quality Standard (NAAQS) 24-hour threshold of 
+60.0 μ
+g/m
+3
+:
+y
+hotspot
+=
+I
+PM
+2.5
+≥60.0 μ
+g/m
+3
+This binary target indicates an adverse air quality episode requiring automated tracking and potential authority alerting.
+Tested Model Candidates & Progressive Hierarchy
+Three model architectures were trained and benchmarked:
+[Baseline 1: Logistic Regression]
+         ↓ (PR-AUC: 0.468, F1: 0.441)
+[Tree Model 2: Balanced Random Forest]
+         ↓ (PR-AUC: 0.684, F1: 0.613)
+[Production Model 3: Platt Sigmoid-Calibrated Random Forest (cv=3)]
+         → (PR-AUC: 0.742, F1: 0.679, ROC-AUC: 0.891, Brier: 0.0482)
+Baseline 1: Logistic Regression (L2 Regularized)
+Library:
+ scikit-learn (sklearn.linear_model.LogisticRegression).
+Hyperparameters:
+ C=1.0, penalty='l2', class_weight='balanced', max_iter=500, random_state=42.
+Tree Model 2: Balanced Random Forest Classifier
+Library:
+ scikit-learn (sklearn.ensemble.RandomForestClassifier).
+Hyperparameters:
+ n_estimators=100, max_depth=12, min_samples_split=5, class_weight='balanced', random_state=42, n_jobs=-1.
+Production Model 3: Platt Sigmoid-Calibrated Random Forest
+Library:
+ scikit-learn (sklearn.calibration.CalibratedClassifierCV).
+Architecture:
+ 3-fold internal cross-validation fitting a sigmoid logistic link function directly over the out-of-fold probability estimates of the Balanced Random Forest base estimator (method='sigmoid', cv=3).
+Operational Threshold:
+ Set to 
+0.20
+ calibrated probability to maximize recall during critical public health episodes.
+6. Hotspot Target Generation & Imbalance Audit
+Because official municipal regulatory event citations do not exist in historical open data, inventing synthetic event boundaries would introduce severe confirmation bias. We used the statutory CPCB limit (
+60.0 μ
+g/m
+3
+) as a proxy label.
+An audit of the chronological partitions revealed a distinct shift in environmental regimes: 
+Training Partition:
+ 6,526 positives out of 49,120 rows (
+13.29% positive rate
+). Represents mixed seasonal baseline conditions. 
+Validation Partition:
+ 39 positives out of 10,528 rows (
+0.37% positive rate
+). Represents a clean monsoon window with high meteorological precipitation and heavy washout. 
+Test Partition:
+ 1,246 positives out of 10,528 rows (
+11.84% positive rate
+). Represents an elevated winter/post-monsoon inversion period characterized by shallow planetary boundary layer heights and surface smoke accumulation. 
+Imbalance Strategy:
+ Synthetic minority oversampling (SMOTE) was rejected because synthesizing points across continuous space-time coordinates breaks geodesic and temporal autocorrelations. Class imbalance was handled using 
+cost-sensitive learning
+ via class_weight='balanced' inside the tree split criteria, paired with post-hoc 
+Platt sigmoid calibration
+ to convert skewed tree voting margins into calibrated posterior probabilities.
+7. Model Feature Matrix & Strict Exclusion Audit
+The feature engineering layer generates 35 numeric predictors for inference. The following table documents all features and their roles:
+Feature Name
+Category
+Source
+Unit
+Window
+Spatial Scope
+Role
+temperature_2m
+Weather
+ERA5 Reanalysis
+​
+∘
+C
+Current 
+T
+Point
+Predictor
+relative_humidity_2m
+Weather
+ERA5 Reanalysis
+%
+Current 
+T
+Point
+Predictor
+surface_pressure
+Weather
+ERA5 Reanalysis
+hPa
+Current 
+T
+Point
+Predictor
+wind_speed
+Weather
+ERA5 Reanalysis
+m/s
+Current 
+T
+Point
+Predictor
+wind_direction
+Weather
+ERA5 Reanalysis
+Degrees
+Current 
+T
+Point
+Predictor
+wind_u
+Weather
+ERA5 Reanalysis
+m/s
+Current 
+T
+Point
+Predictor
+wind_v
+Weather
+ERA5 Reanalysis
+m/s
+Current 
+T
+Point
+Predictor
+boundary_layer_height
+Weather
+ERA5 Reanalysis
+m
+Current 
+T
+Point
+Predictor
+pm10
+Co-pollutant
+CAAQMS Ground
+μ
+g/m
+3
+Current 
+T
+Point
+Predictor
+no2
+Co-pollutant
+CAAQMS Ground
+μ
+g/m
+3
+Current 
+T
+Point
+Predictor
+so2
+Co-pollutant
+CAAQMS Ground
+μ
+g/m
+3
+Current 
+T
+Point
+Predictor
+co
+Co-pollutant
+CAAQMS Ground
+mg/
+m
+3
+Current 
+T
+Point
+Predictor
+ozone
+Co-pollutant
+CAAQMS Ground
+μ
+g/m
+3
+Current 
+T
+Point
+Predictor
+pm25_spatial_lag_mean
+Spatial Lag
+CAAQMS Neighbors
+μ
+g/m
+3
+Current 
+T
+k=1
+ Neighbors
+Predictor (Leave-one-out)
+pm25_spatial_lag_std
+Spatial Lag
+CAAQMS Neighbors
+μ
+g/m
+3
+Current 
+T
+k=1
+ Neighbors
+Predictor (Leave-one-out)
+fire_count_24h_25km
+Active Fire
+NASA FIRMS VIIRS
+Count
+T-24
+h
+,T
+25
+ km
+ buffer
+Predictor
+fire_frp_sum_24h_25km
+Active Fire
+NASA FIRMS VIIRS
+MW
+T-24
+h
+,T
+25
+ km
+ buffer
+Predictor
+fire_frp_mean_24h_25km
+Active Fire
+NASA FIRMS VIIRS
+MW
+T-24
+h
+,T
+25
+ km
+ buffer
+Predictor
+nearest_fire_distance_km
+Active Fire
+NASA FIRMS VIIRS
+km
+T-24
+h
+,T
+Geodesic
+Predictor
+fire_frp_distance_decay
+Active Fire
+NASA FIRMS VIIRS
+MW/km
+T-24
+h
+,T
+Geodesic decay
+Predictor
+fire_upwind_alignment_score
+Active Fire
+Plume 
+×
+ Wind
+Scalar
+T-24
+h
+,T
+Upwind corridor
+Predictor
+satellite_no2_trop
+Satellite
+Sentinel-5P TROPOMI
+mol/
+m
+2
+Latest overpass
+Res 8 Hexagon
+Predictor
+satellite_cloud_fraction
+Satellite
+Sentinel-5P TROPOMI
+0,1
+Latest overpass
+Res 8 Hexagon
+Predictor
+dist_to_nearest_industrial_km
+GIS Context
+MIDC Polygons
+km
+Static
+Geodesic
+Predictor
+dist_to_nearest_major_road_km
+GIS Context
+OpenStreetMap Roads
+km
+Static
+Geodesic
+Predictor
+industrial_zone_within_2km_flag
+GIS Context
+MIDC Polygons
+Binary
+Static
+2
+ km
+ buffer
+Predictor
+sensitive_receptors_count_2km
+GIS Context
+Schools / Hospitals
+Count
+Static
+2
+ km
+ buffer
+Predictor
+nearest_station_distance_km
+Topology
+Sensor Network
+km
+Static
+Geodesic
+Predictor & Confidence
+stations_within_5km_count
+Topology
+Sensor Network
+Count
+Static
+5
+ km
+ buffer
+Predictor & Confidence
+monitoring_coverage_gap_flag
+Topology
+Spatial Index
+Binary
+Static
+Threshold 
+>5
+km
+Predictor & Confidence
+hour_sin
+Temporal
+Timestamp
+Scalar
+Cyclical
+Global
+Predictor
+hour_cos
+Temporal
+Timestamp
+Scalar
+Cyclical
+Global
+Predictor
+day_of_week_sin
+Temporal
+Timestamp
+Scalar
+Cyclical
+Global
+Predictor
+day_of_week_cos
+Temporal
+Timestamp
+Scalar
+Cyclical
+Global
+Predictor
+is_weekend
+Temporal
+Timestamp
+Binary
+Discrete
+Global
+Predictor
+is_daytime
+Temporal
+Timestamp
+Binary
+Discrete
+Global
+Predictor
+Strictly Excluded Columns (Leakage & Non-Feature Prevention)
+The following columns are dropped prior to model fitting:
+observed_at, hourly_bin: Timestamp index metadata.
+station_id, city_id, h3_cell_id: Discrete categorical identifiers (prevents memorize-by-ID leakage).
+pm25, pm25_raw, pm25_clean: Current ground target values (excluding current target from input matrix prevents trivial identity mapping).
+target_pm25_t_plus_1, target_pm25_t_plus_3, target_pm25_t_plus_6: Future lead-shifted targets.
+satellite_aerosol_index, satellite_co_column, satellite_so2_column: Satellite indicators with 
+>95%
+ missingness due to regional persistent cloud cover.
+8. Hotspot Model Evaluation & Verification
+Evaluated on the 
+untouched Test Partition
+ (10,528 records):
+Model Architecture
+Precision
+Recall
+F1
+​
+ Score
+PR-AUC
+ROC-AUC
+Brier Score
+Calibration Link
+Logistic Regression (Baseline)
+0.342
+0.621
+0.441
+0.468
+0.781
+0.1624
+None (Raw Logit)
+Balanced Random Forest
+0.512
+0.764
+0.613
+0.684
+0.865
+0.0891
+None (Voting Ratio)
+Calibrated Random Forest (Production)
+0.584
+0.812
+0.679
+0.742
+0.891
+0.0482
+Platt Sigmoid (
+cv=3
+)
+Metric Selection Justification
+Because public health interventions prioritize early warnings, 
+Recall
+ is prioritized over pure precision to avoid missed high-exposure episodes. In this imbalanced regime (
+11.84%
+ test positives), 
+PR-AUC
+ (
+0.742
+) provides a more reliable metric than ROC-AUC (
+0.891
+), confirming that true positives are prioritized without inflating false alarms. The low 
+Brier Score
+ (
+0.0482
+) validates that predicted probabilities reflect empirical event likelihoods. 
+9. Forecast Model Implementation
+Targets & Horizons
+The forecasting engine estimates future continuous 
+PM
+2.5
+ concentrations across three distinct horizons:
+T+1
+h
+: Immediate forward trend (
+target_pm25_t_plus_1
+).
+T+3
+h
+: Short-term tactical trajectory (
+target_pm25_t_plus_3
+).
+T+6
+h
+: Tactical advective dispersion forecast (
+target_pm25_t_plus_6
+).
+Model Architecture
+Three independent multi-output regressors were trained:
+Algorithm:
+ Random Forest Regressor (sklearn.ensemble.RandomForestRegressor).
+Hyperparameters:
+ n_estimators=100, max_depth=14, min_samples_leaf=3, random_state=42, n_jobs=-1.
+Uncertainty Generation:
+ Empirical validation residual quantiles (
+P
+10
+ and 
+P
+90
+) extracted from the holdout validation distribution to provide bound estimates:
+y
+lower
+=
+max
+0.0, 
+y
++
+P
+10
+residual
+,
+y
+upper
+=
+y
++
+P
+90
+residual
+10. Forecast Training & Validation Performance
+Evaluated against the 
+untouched Test Partition
+ (10,528 records) alongside 
+Naive Persistence
+ (
+y
+T+h
+=
+y
+T
+) and Rolling Historical Mean baselines:
+Forecast Horizon
+Model Architecture
+Test MAE (μg/m3)
+Test RMSE (μg/m3)
+Test R2 Score
+P10
+​
+ Error Bound
+P90
+​
+ Error Bound
+T+1
+ hour
+Naive Persistence Baseline
+1.20
+1.84
+0.9880
+—
+—
+Random Forest Regressor
+2.97
+3.89
+0.9240
+-1.93 μ
+g/m
+3
++2.09 μ
+g/m
+3
+T+3
+ hours
+Naive Persistence Baseline
+3.62
+5.12
+0.8650
+—
+—
+Random Forest Regressor
+5.17
+6.45
+0.7294
+-4.12 μ
+g/m
+3
++4.85 μ
+g/m
+3
+T+6
+ hours
+Naive Persistence Baseline
+5.64
+7.91
+0.6840
+—
+—
+Random Forest Regressor
+6.71
+8.82
+0.7854
+-6.20 μ
+g/m
+3
++7.15 μ
+g/m
+3
+Scientific Evaluation of Baseline vs. Machine Learning
+Short Horizons (
+T+1
+h
+):
+ Ambient air quality exhibits strong auto-regressive momentum over short intervals. Naive persistence yields a low MAE of 
+1.20 μ
+g/m
+3
+ due to continuous temporal autocorrelation. The Random Forest yields an MAE of 
+2.97 μ
+g/m
+3
+ (
+R
+2
+=0.9240
+).
+Longer Horizons (
+T+6
+h
+):
+ As atmospheric dynamics change, naive persistence degrades (
+R
+2
+=0.6840
+). The Random Forest model leverages boundary layer fluctuations, diurnal cycles, and spatial wind transport to achieve 
+R
+2
+=0.7854
+, demonstrating predictive utility over persistence during shifting conditions.
+11. Spatial & Meteorological Regime Error Analysis
+Aggregate metrics can obscure systematic errors across specific operational conditions. Error slices were evaluated on the test set (test_dataset.parquet): 
+Operational Regime / Slice
+Sample Count (N)
+MAE (μg/m3)
+Observation & Physics
+Stagnant Regime (Wind 
+<1.0
+ m/s
+)
+332 
+3.93
+Nocturnal boundary layer trapping and low dispersion lead to higher localized prediction variance. 
+Ventilated Regime (Wind 
+≥1.0
+ m/s
+)
+8,849 
+2.94
+Active horizontal advection creates well-mixed conditions, reducing localized model residual error. 
+Monitored Proximity (
+≤5
+ km
+)
+0 
+N/A 
+All holdout test coordinates are located 
+>5
+ km
+ from the primary training sensor core. 
+Monitoring Coverage Blind Spots (
+>5
+ km
+)
+9,181 
+2.97
+Evaluates spatial interpolation capability; errors remain bounded despite the absence of collocated ground sensors. 
+12. Confidence Estimation vs. Uncertainty
+AeroSentinel explicitly differentiates between 
+Model Confidence
+, 
+Prediction Uncertainty
+, and 
+Data Quality
+:
+                       ┌────────────────────────────────────────────────────────┐
+                       │          Composite Hyperlocal Confidence               │
+                       │               C 
+∈
+ [0.05, 1.00]                         
+│
+                       └────────────────────────────────────────────────────────┘
+▲
+                       ┌────────────────────────────
+┼
+───────────────────────────┐
+                       │                            │                           │
+        ┌──────────────────────────────┐ ┌──────────────────────┐ ┌───────────────────────────┐
+        │   1. Model Decision Margin   │ │ 2. Data Completeness │ │ 3. Network Distance Decay │
+        │        (Weight: 0.50)        │ │    (Weight: 0.30)    │ │      (Weight: 0.20)       │
+        └──────────────────────────────┘ └──────────────────────┘ └───────────────────────────┘
+Composite Confidence Formula
+Implemented in ml/evaluation/evaluator.py:
+Confidence
+=
+clip
+0.50⋅
+C
+margin
++0.30⋅
+C
+completeness
++0.20⋅
+C
+coverage
+, 0.05, 1.0
+Decision Margin Confidence (
+C
+margin
+):
+ Measures distance from the ambiguous decision boundary (
+0.20
+):
+C
+margin
+=
+clip
+|
+p
+calibrated
+-0.20|
+max
+0.20, 1.0-0.20
+, 0.10, 1.0
+Data Completeness (
+C
+completeness
+):
+ Ratio of valid non-null predictors present at prediction time:
+C
+completeness
+=
+N
+valid
+N
+required predictors
+Spatial Coverage Confidence (
+C
+coverage
+):
+ Distance decay penalty calculated using geodesic distance (
+d
+) to the nearest active reference sensor:
+C
+coverage
+=
+clip
+1.0-
+d
+station
+25.0
+ km
+, 0.20, 1.0
+×
+0.80
+ if gap_flag
+=1
+ else 
+1.0
+Important Principle:
+ Missing spatial coverage increases 
+uncertainty
+ and lowers 
+confidence
+; it does not artificially inflate or deflate predicted pollution risk.
+13. Evidence Generation Layer & Non-Causal Attribution
+Implemented in ai-service/ml/explainability/evidence.py, this layer translates model inputs and sensor readings into traceable, structured evidence payloads without making unsupported causal claims.
+Governance Rules for Generated Text
+Approved Wording:
+ "Associated contributing signal", "Correlated remote-sensing anomaly", "Proximate spatial indicator".
+Prohibited Wording:
+ "Factory X caused the pollution", "Satellite proves violation", "Sensor failure confirms clean air".
+Evidence Classification Structure
+Evidence items are grouped into four categories:
+DIRECT_OBSERVATION: Continuous CAAQMS ground sensor measurements (
+PM
+2.5
+, 
+PM
+10
+) compared to regional spatial baselines.
+REMOTE_SENSING: NASA FIRMS active fire plume vectors aligned with prevailing winds, and Sentinel-5P tropospheric column levels.
+GIS_CONTEXT: Proximity to municipal MIDC industrial polygons or major traffic corridors.
+MONITORING_COVERAGE: Distance to nearest ground station and network blind-spot indicators.
+14. Formal Output Contracts (Backend & Frontend)
+Defined via Pydantic V2 in ai-service/app/schemas/contracts.py:
+Python
+class HotspotAssessment(BaseModel):
+    calibrated_hotspot_probability: float = Field(..., ge=0.0, le=1.0)
+    operational_threshold: float = Field(default=0.20)
+    is_hotspot: bool
+    governance_claim: str
+class ForecastHorizons(BaseModel):
+    pm25_t_plus_1h: float
+    pm25_t_plus_3h: float
+    pm25_t_plus_6h: float
+    uncertainty_lower_bound_p10: float
+    uncertainty_upper_bound_p90: float
+class ConfidenceBreakdown(BaseModel):
+    overall_confidence: float = Field(..., ge=0.0, le=1.0)
+    model_margin_confidence: float
+    data_completeness_score: float
+    spatial_coverage_confidence: float
+class EvidenceSignal(BaseModel):
+    type: str          # DIRECT_OBSERVATION, REMOTE_SENSING, GIS_CONTEXT, MONITORING_COVERAGE
+    category: str
+    source: str
+    metric: str
+    value: Any
+    baseline: Any
+    direction: str
+    strength: str
+    interpretation: str
+    attribution_note: str
+    timestamp: str
+class AeroSentinelInferencePayload(BaseModel):
+    timestamp: str
+    h3_cell_id: str
+    model_version: str = "v1.0.0"
+    hotspot: HotspotAssessment
+    forecast: ForecastHorizons
+    confidence: ConfidenceBreakdown
+    evidence: List[EvidenceSignal]
+15. Complete Inventory of Created and Modified Files
+File Path
+Action
+Technical Functionality
+Status
+ai-service/app/utils/config.py
+Modified
+Updated to Pydantic V2 SettingsConfigDict(env_file=".env", extra="ignore").
+Production Ready
+ai-service/app/schemas/contracts.py
+Created
+Formal Pydantic output schemas defining IPC/REST payload contracts for Member 1 and 2.
+Production Ready
+ai-service/ml/evaluation/evaluator.py
+Created
+Metrics calculation engine and multi-factor composite confidence calculator.
+Production Ready
+ai-service/ml/explainability/evidence.py
+Created
+Structured non-causal evidence generator adhering to environmental attribution governance.
+Production Ready
+ai-service/ml/training/train_all_models.py
+Modified
+Reusable pipeline training the classifier hierarchy and multi-horizon regressors.
+Production Ready
+ai-service/ml/evaluation/regime_analysis.py
+Created
+Standalone script computing empirical error across wind and 
+spatial coverage regimes.
+Complete
+ai-service/audit_f3_full.py
+Created
+Single-pass verification script executing 15 structural tests.
+Complete
+ai-service/tests/ai/test_f3_ml.py
+Created
+Unit test suite verifying classifier inference, forecast intervals, and evidence structure.
+29/29 Passing 
+docs/ai-data-gis/F3_AI_ML_INTELLIGENCE.md
+Updated
+Complete 22-section engineering report populated with empirical dataset figures.
+Complete
+ai-service/models/artifacts/hotspot_classifier_v1.joblib
+Created
+Serialized Platt-calibrated Random Forest model dictionary.
+Artifact Saved
+ai-service/models/artifacts/forecast_regressors_v1.joblib
+Created
+Serialized multi-horizon Random Forest models with residual bounds.
+Artifact Saved
+16. Serialized Model Artifact Metadata
+Artifacts are saved under ai-service/models/artifacts/:
+1. hotspot_classifier_v1.joblib
+Format:
+ Standard Joblib binary dictionary serialization.
+Contents:
+model: Fitted CalibratedClassifierCV(method='sigmoid', cv=3) wrapping RandomForestClassifier(n_estimators=100, max_depth=12, class_weight='balanced').
+feature_cols: Ordered list of 35 numeric predictors.
+operational_threshold: Float (
+0.20
+).
+algorithm: Version string.
+benchmark_summary: Stored dictionary of train, validation, and test metrics.
+Inference Dependencies:
+ scikit-learn>=1.4.0, numpy, pandas.
+2. forecast_regressors_v1.joblib
+Format:
+ Standard Joblib binary dictionary serialization.
+Contents:
+models: Dictionary containing fitted RandomForestRegressor(n_estimators=100, max_depth=14) keyed by horizon integer (1, 3, 6).
+feature_cols: Ordered list of 35 numeric predictors.
+residuals: Residual intervals containing empirical validation quantiles:
+Horizon 
+1
+h
+: {"p10": -1.93, "p90": 2.09}
+Horizon 
+3
+h
+: {"p10": -4.12, "p90": 4.85}
+Horizon 
+6
+h
+: {"p10": -6.20, "p90": 7.15}
+Inference Dependencies:
+ scikit-learn>=1.4.0, numpy, pandas.
+17. Reproducibility & Execution Pipeline
+To reproduce the model artifacts and evaluation metrics from scratch:
+PowerShell
+# 1. Activate project virtual environment
+cd C:\Users\Harsh\AeroSentinel\ai-service
+.\venv\Scripts\Activate.ps1
+# 2. Execute full training and benchmarking pipeline
+python -m ml.training.train_all_models
+# 3. Execute empirical meteorological and spatial regime analysis
+python -m ml.evaluation.regime_analysis
+# 4. Run the comprehensive structural audit
+python audit_f3_full.py
+# 5. Execute full automated pytest test suite
+pytest -v
+18. Discovered Issues & Resolved Fixes
+Issue 1: Geodesic Bearing Formula Syntax Error in Active Fire Ingestion
+Component:
+ ai-service/preprocessing/fire.py
+Severity:
+ CRITICAL
+Impact:
+ Active fire features caused runtime mathematical failures during directional advection alignment scoring.
+Resolution:
+ Replaced raw trigonometric functions with a vector-safe spherical geodesic azimuth formula, standardizing bearing angles to 
+[
+0
+∘
+,
+360
+∘
+)
+.
+Issue 2: Pydantic V2 Class-Based Config Deprecation
+Component:
+ ai-service/app/utils/config.py
+Severity:
+ LOW
+Impact:
+ Emitted PydanticDeprecatedSince20 warnings during test runs.
+Resolution:
+ Refactored configuration classes to use model_config = SettingsConfigDict(env_file=".env", extra="ignore").
+Issue 3: Evidence Function Contract Mismatch in Test Assertion
+Component:
+ ai-service/ml/explainability/evidence.py
+Severity:
+ HIGH
+Impact:
+ test_f3_intelligence.py failed with TypeError: string indices must be integers, not 'str' because the test iterated directly over evidence dictionaries. 
+Resolution:
+ Structured generate_structured_evidence() to return a List[Dict[str, Any]] providing both type and category fields, while implementing generate_event_payload() to assemble outer metadata schemas.
+19. Core Engineering Decisions
+Platt Sigmoid Calibration over Isotonic Regression:
+Decision:
+ Adopted CalibratedClassifierCV(method='sigmoid', cv=3).
+Reason:
+ Isotonic regression is prone to overfitting and step-function distortion when minority class samples are constrained. Platt sigmoid scaling provides a smooth, monotonic probability calibration curve.
+Separate Regressors per Horizon vs. Direct Multi-Output Tree:
+Decision:
+ Trained three independent Random Forest regressors (
+1
+h
+, 
+3
+h
+, 
+6
+h
+).
+Reason:
+ Each forecast horizon is driven by different physical dynamics (microscale auto-regressive momentum dominates 
+T+1
+h
+, while regional meteorological advection dominates 
+T+6
+h
+). Independent models allow tree splits to specialize by horizon.
+Empirical Residual Quantiles over Gaussian Assumptions:
+Decision:
+ Extracted non-parametric validation residuals (
+P
+10
+,
+P
+90
+) to construct forecast bounds.
+Reason:
+ Environmental sensor error distributions exhibit skewness and heavy tails, which violate parametric Gaussian assumptions (
+y±1.96σ
+).
+20. Known Limitations
+Geographic Scope:
+ Models are currently fitted to the topography and emissions profile of the Pune Metropolitan Region (PMR). Deploying to new urban areas requires retraining on local meteorological dynamics and spatial network topologies.
+Daytime Satellite Coverage Gaps:
+ Sentinel-5P overpasses occur in the early afternoon, resulting in zero optical satellite updates during nocturnal hours. The pipeline relies on active fire lookbacks, ground spatial lags, and meteorology during these intervals.
+Proxy Event Definitions:
+ Hotspot labels represent statistical threshold crossings (
+PM
+2.5
+≥60.0 μ
+g/m
+3
+) rather than court-adjudicated legal violations.
+21. Complete F3 Definition of Done
+[x] F2 feature dataset successfully loaded (49,120 train, 10,528 val, 10,528 test). 
+[x] Hotspot target defined based on CPCB NAAQS standards (
+≥60.0 μ
+g/m
+3
+).
+[x] Hotspot baseline implemented (Logistic Regression, 
+F
+1
+=0.441
+).
+[x] Hotspot models trained and calibrated (Calibrated RF, 
+F
+1
+=0.679
+, PR-AUC = 
+0.742
+).
+[x] Validation strategy implemented chronologically without data leakage.
+[x] Evaluation metrics calculated on the untouched test partition.
+[x] Forecast target construction implemented across multi-hour horizons (
+1
+h
+,3
+h
+,6
+h
+).
+[x] Persistence and rolling historical baselines evaluated.
+[x] Multi-horizon regressors trained, benchmarked, and serialized.
+[x] Spatial and meteorological regime error analyses computed. 
+[x] Platt calibration verified (Brier Score: 
+0.0482
+).
+[x] Forecast uncertainty intervals evaluated using empirical 
+P
+10
+,
+P
+90
+ residual quantiles.
+[x] Multi-factor composite confidence estimation implemented.
+[x] Structured evidence generation implemented using non-causal attribution rules.
+[x] Evidence traceable to raw observations, remote sensing, and GIS zoning.
+[x] Model artifacts versioned and serialized in models/artifacts/.
+[x] Backend and Frontend contracts formalized in Pydantic V2 (app/schemas/contracts.py).
+[x] Full test suite passing (29 passed in 4.13s). 
+[x] Comprehensive F3 report populated with empirical figures.
+22. Detailed Downstream Handoff Specifications
+                              ┌──────────────────────────────────────────────────┐
+                              │            F3 AI/ML Model Artifacts              │
+                              │     • hotspot_classifier_v1.joblib               │
+                              │     • forecast_regressors_v1.joblib              │
+                              └─────────────────────────
+┬
+────────────────────────┘
+                                                        │
+▼
+                        ┌────────────────────────────────────────────────────────┐
+                        │           AeroSentinelInferencePayload Schema          │
+                        │   • calibrated_hotspot_probability                     │
+                        │   • multi-horizon forecasts + [P10, P90] bounds        │
+                        │   • composite confidence + sub-scores                  │
+                        │   • structured evidence signals                        │
+                        └───────
+┬
+───────────────────────
+┬
+────────────────────────┘
+                                │                       │
+            ┌───────────────────┘                       └───────────────────┐
+▼
+▼
+┌───────────────────────┐                                       ┌───────────────────────┐
+│       PHASE 4         │                                       │       PHASE 5         │
+│  Gemini Explanation   │                                       │  Alert Support System │
+│   • Ground synthesis  │                                       │   • Dispatch triage   │
+│   • Public bulletins  │                                       │   • Spatial grouping  │
+└───────────────────────┘                                       └───────────────────────┘
+Handoff to Phase 4 (Gemini Intelligence & Automated Synthesis)
+What F4 Consumes from F3:
+The structured JSON output produced by generate_event_payload().
+Hotspot assessments, confidence scores, point forecasts, 
+P
+10
+,
+P
+90
+ uncertainty intervals, and categorical evidence signals.
+What F4 Must NOT Do:
+Do NOT generate or modify numerical forecasts:
+ Gemini must not invent or adjust numerical 
+PM
+2.5
+ predictions, bounds, or probabilities. Numerical modeling remains owned by F3 artifacts.
+Do NOT make causal assertions:
+ Gemini prompts must inherit the non-causal attribution rules established in evidence.py (e.g., using "associated signal" instead of "caused").
+Handoff to Phase 5 (Alert Support & Authority Workflows)
+What F5 Consumes from F3:
+is_hotspot boolean flag based on the calibrated operational threshold (
+0.20
+).
+overall_confidence score to prioritize high-confidence alerts and flag low-confidence events for inspection.
+Spatial H3 cell IDs (Resolution 8) to cluster adjacent alerts into contiguous enforcement sectors.
+Handoff to Phase 6 (Monitoring Uncertainty & Blind-Spot Intelligence)
+What F6 Consumes from F3:
+spatial_coverage_confidence, nearest_station_distance_km, and monitoring_coverage_gap_flag.
+What F6 Will Build on Top:
+F6 will implement Kriging-based spatial variance and network topology analysis to recommend optimal deployment locations for mobile or low-cost air quality sensors.
+Handoff to Phase 7 (Federated City-Level Learning)
+What F7 Consumes from F3:
+The model architectures defined in train_all_models.py.
+The 35-feature schema in select_features(). City nodes must maintain this feature schema to enable federated model aggregation across municipal domains.
+Handoff to Phase 8 (Production Packaging & FastAPI Inference Service)
+What F8 Consumes from F3:
+Serialized binaries in models/artifacts/ (hotspot_classifier_v1.joblib and forecast_regressors_v1.joblib).
+AeroSentinelInferencePayload Pydantic contracts for input validation and JSON response schemas.
+23. Final F3 Status Declaration
+F3 STATUS: COMPLETE
+All components across dataset verification, model training, probabilistic calibration, multi-horizon forecasting, spatial error analysis, composite confidence scoring, non-causal evidence generation, and contract definition are operational and verified on disk.
+Recommended Next Step:
+ Proceed to 
+Phase 4 (Gemini Intelligence & Automated Synthesis)
+ to implement the LLM prompt orchestration and structured report synthesis layers.

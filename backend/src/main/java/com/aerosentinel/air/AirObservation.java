@@ -41,6 +41,9 @@ public class AirObservation {
     @Column(name = "data_quality", length = 50)
     private String dataQuality = "VALID";
 
+    @Column(name = "h3_index", length = 30)
+    private String h3Index;
+
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
 
@@ -76,6 +79,8 @@ public class AirObservation {
     public void setSource(String source) { this.source = source; }
     public String getDataQuality() { return dataQuality; }
     public void setDataQuality(String dataQuality) { this.dataQuality = dataQuality; }
+    public String getH3Index() { return h3Index; }
+    public void setH3Index(String h3Index) { this.h3Index = h3Index; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

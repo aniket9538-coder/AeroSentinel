@@ -10,7 +10,6 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
         jdbc:
           lob:
             non_contextual_creation: true
@@ -39,9 +38,31 @@ app:
     cpcb:
       base-url: ${CPCB_BASE_URL:https://api.cpcb.gov.in}
       api-key: ${CPCB_API_KEY:}
+    openaq:
+      base-url: ${OPENAQ_BASE_URL:https://api.openaq.org/v3}
+      api-key: ${OPENAQ_API_KEY:b094486bd6df343cfbc2a1f9c18b6fd40834dccd175347eece1acb4be6306766}
+      timeout-ms: ${OPENAQ_TIMEOUT_MS:15000}
+      enabled: ${OPENAQ_ENABLED:true}
     firms:
       base-url: ${FIRMS_BASE_URL:https://firms.modaps.eosdis.nasa.gov}
       api-key: ${FIRMS_API_KEY:}
     weather:
+      open-meteo:
+        base-url: ${OPEN_METEO_BASE_URL:https://api.open-meteo.com/v1/forecast}
+        timeout-ms: ${OPEN_METEO_TIMEOUT_MS:15000}
       base-url: ${WEATHER_BASE_URL:https://api.openweathermap.org/data/2.5}
       api-key: ${WEATHER_API_KEY:}
+  weather:
+    ingestion:
+      enabled: ${AEROSENTINEL_WEATHER_INGESTION_ENABLED:true}
+      interval-ms: ${AEROSENTINEL_WEATHER_INGESTION_INTERVAL_MS:900000}
+    backfill:
+      enabled: ${AEROSENTINEL_WEATHER_BACKFILL_ENABLED:true}
+  ingestion:
+    enabled: ${AEROSENTINEL_INGESTION_ENABLED:false}
+    interval-ms: ${AEROSENTINEL_INGESTION_INTERVAL_MS:300000}
+    provider: ${AEROSENTINEL_PROVIDER:openaq}
+  spatial:
+    h3:
+      resolution: ${AEROSENTINEL_H3_RESOLUTION:8}
+

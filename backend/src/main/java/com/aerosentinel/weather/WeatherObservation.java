@@ -39,6 +39,9 @@ public class WeatherObservation {
     @Column(length = 50)
     private String source = "IMD";
 
+    @Column(name = "h3_index", length = 30)
+    private String h3Index;
+
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
 
@@ -68,6 +71,8 @@ public class WeatherObservation {
     public void setPressure(Double pressure) { this.pressure = pressure; }
     public String getSource() { return source; }
     public void setSource(String source) { this.source = source; }
+    public String getH3Index() { return h3Index; }
+    public void setH3Index(String h3Index) { this.h3Index = h3Index; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

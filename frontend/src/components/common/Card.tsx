@@ -1,11 +1,13 @@
 import React from 'react';
 
-interface CardProps {
-  title?: string;
-  subtitle?: string;
+export interface CardProps {
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
   action?: React.ReactNode;
+  style?: React.CSSProperties;
+  badge?: React.ReactNode;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -14,25 +16,52 @@ export const Card: React.FC<CardProps> = ({
   children,
   className = '',
   action,
+  style = {},
+  badge,
 }) => {
   return (
     <div
       style={{
-        background: 'rgba(17, 24, 39, 0.75)',
-        backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '12px',
+        background: 'var(--bg-card)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: '14px',
         padding: '1.25rem',
+        boxShadow: 'var(--shadow-md)',
+        position: 'relative',
+        ...style,
       }}
       className={`glass-panel ${className}`}
     >
-      {(title || action) && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div>
-            {title && <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#f3f4f6' }}>{title}</h3>}
-            {subtitle && <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>{subtitle}</p>}
+      {(title || subtitle || action || badge) && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '1rem',
+            gap: '0.75rem',
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {typeof title === 'string' ? (
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {title}
+                </h3>
+              ) : (
+                title
+              )}
+              {badge}
+            </div>
+            {subtitle && (
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                {subtitle}
+              </p>
+            )}
           </div>
-          {action && <div>{action}</div>}
+          {action && <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>{action}</div>}
         </div>
       )}
       <div>{children}</div>

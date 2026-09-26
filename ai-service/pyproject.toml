@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aerosentinel-ai-service"
+version = "0.1.0"
+description = "AeroSentinel AI/ML, Geospatial, and Environmental Intelligence Service"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    # Core Data & Validation
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "pyarrow>=15.0.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    
+    # Geospatial & H3 (Compatible with both v3 and v4 API bindings via our adapter)
+    "h3>=3.7.6,<5.0.0",
+    "shapely>=2.0.0",
+    "geopandas>=0.14.0",
+    "pyproj>=3.6.0",
+    
+    # Baseline Modeling & Evaluation
+    "scikit-learn>=1.4.0",
+    
+    # Visualization (Exploration only)
+    "matplotlib>=3.8.0",
+    
+    # Configuration & File I/O
+    "pyyaml>=6.0.1",
+    "python-dotenv>=1.0.1",
+    "requests>=2.31.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.29.0",
+    "black>=24.0.0",
+    "ruff>=0.3.0"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-v --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

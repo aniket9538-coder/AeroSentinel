@@ -1,9 +1,18 @@
-import apiClient from './api';
-import { HotspotPrediction } from '../types';
+import hotspotApi from './hotspotApi';
+import { HotspotOverviewResponse, HotspotCell } from '../types/hotspot';
 
 export const hotspotService = {
-  getHotspots: async (cityId: string): Promise<HotspotPrediction[]> => {
-    const response = await apiClient.get<HotspotPrediction[]>(`/hotspots?cityId=${cityId}`);
-    return response.data;
+  getHotspotsOverview: (cityId: string): Promise<HotspotOverviewResponse> => {
+    return hotspotApi.getHotspotsByCity(cityId);
+  },
+  getHotspotByH3: (h3Index: string): Promise<HotspotCell> => {
+    return hotspotApi.getHotspotByH3(h3Index);
+  },
+  // Backward compatibility alias returning cell list
+  getHotspots: async (cityId: string): Promise<HotspotCell[]> => {
+    const data = await hotspotApi.getHotspotsByCity(cityId);
+    return data.cells || [];
   },
 };
+
+export default hotspotService;

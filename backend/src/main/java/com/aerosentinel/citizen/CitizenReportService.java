@@ -21,7 +21,7 @@ public class CitizenReportService {
 
     public CitizenReport createReport(CitizenReport report) {
         if (report.getH3Index() == null && report.getLatitude() != null && report.getLongitude() != null) {
-            report.setH3Index(H3Utils.coordinatesToMockH3(report.getLatitude(), report.getLongitude(), H3Utils.NEIGHBORHOOD_RESOLUTION));
+            report.setH3Index(H3Utils.coordinatesToH3(report.getLatitude(), report.getLongitude(), H3Utils.NEIGHBORHOOD_RESOLUTION));
         }
         return citizenReportRepository.save(report);
     }

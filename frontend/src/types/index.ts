@@ -185,3 +185,14 @@ export interface MonitoringRecommendation {
   priorityScore: number;
   priorityLevel: 'LOW' | 'MEDIUM' | 'HIGH';
 }
+
+// Canonical F1 Phase 5/6 Types
+export * from './city';
+export * from './airQuality';
+
+// Canonical F2 Phase 5/6 Types
+export * from './weather';
+export * from './grid';
+
+// Canonical F3 Phase 4 Types
+export * from './hotspot';

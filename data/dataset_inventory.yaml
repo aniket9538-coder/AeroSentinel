@@ -1,0 +1,439 @@
+version: "1.1.0"
+project: "AeroSentinel"
+phase: "F0_F1_FOUNDATION"
+last_updated: "2026-09-24T18:00:00Z"
+crs_default: "EPSG:4326"
+h3_resolution_default: 8
+timezone_default: "Asia/Kolkata"
+
+datasets:
+  # =========================================================================
+  # 1. GROUND AIR QUALITY
+  # =========================================================================
+  - dataset_id: "ds_air_cpcb_ground"
+    category: "AIR_QUALITY"
+    dataset_name: "CPCB / CAAQMS Continuous Ground Air Quality Observations"
+    source_provider: "Central Pollution Control Board (CPCB) / OpenAQ / India OGD (data.gov.in)"
+    access_url: "https://airquality.cpcb.gov.in/AQI_India/"
+    access_mechanism: "REST API / CSV Batch Export"
+    local_path_raw: "data/raw/air_quality/"
+    local_path_sample: "data/sample/air_quality.csv"
+    local_path_interim: "data/interim/air_quality_cleaned.parquet"
+    data_type: "Tabular (Point Time-Series)"
+    spatial_resolution: "Point monitoring stations (5 municipal stations in Pune: Shivajinagar, Hadapsar, Katraj, Wakad, Kothrud)"
+    temporal_resolution: "1 hour"
+    timestamp_semantics: "Hourly observation window ending at observed_at (converted from IST to UTC canonical)"
+    geographic_coverage: "Pune Metropolitan Region, Maharashtra, India (Bounding Box: 18.30-18.75 N, 73.65-74.15 E)"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    variables:
+      - name: "pm25"
+        aliases: ["pm2_5"]
+        unit: "ug/m3"
+        valid_range: [0.0, 1500.0]
+        extreme_threshold: 500.0
+        required: true
+        description: "Fine particulate matter <= 2.5 micrometers"
+      - name: "pm10"
+        unit: "ug/m3"
+        valid_range: [0.0, 2000.0]
+        extreme_threshold: 800.0
+        required: false
+        description: "Coarse particulate matter <= 10 micrometers"
+      - name: "no2"
+        unit: "ug/m3"
+        valid_range: [0.0, 1000.0]
+        extreme_threshold: 300.0
+        required: false
+        description: "Nitrogen Dioxide concentration"
+      - name: "so2"
+        unit: "ug/m3"
+        valid_range: [0.0, 1000.0]
+        extreme_threshold: 300.0
+        required: false
+        description: "Sulfur Dioxide concentration"
+      - name: "co"
+        unit: "mg/m3"
+        valid_range: [0.0, 100.0]
+        extreme_threshold: 30.0
+        required: false
+        description: "Carbon Monoxide concentration"
+      - name: "o3"
+        unit: "ug/m3"
+        valid_range: [0.0, 1000.0]
+        extreme_threshold: 300.0
+        required: false
+        description: "Ground-level Ozone concentration"
+      - name: "aqi"
+        unit: "index_value"
+        valid_range: [0, 1000]
+        extreme_threshold: 500
+        required: false
+        description: "Official sub-index AQI (informational only; not model target)"
+    missing_value_conventions: ["NaN", "null", "-999.0", "-999", "NA", ""]
+    expected_update_frequency: "Hourly (typically published with 15-45 minute reporting lag)"
+    data_status: "historical_and_live"
+    aerosentinel_role: "Supervised ground-truth target variable for PM2.5 forecasting, baseline verification, and hotspot identification"
+    potential_quality_issues: "Sensor calibration baseline drift, zero-flatlining during power/network dropouts, unphysical negative readings"
+    potential_leakage_risks: "Forward imputation across missing spans exceeding 2 hours; mixing post-T ground measurements into pre-T feature vectors"
+    mvp_requirement: "REQUIRED"
+    license_constraints: "Government Open Data License - India (GODL)"
+
+  # =========================================================================
+  # 2. SURFACE METEOROLOGY
+  # =========================================================================
+  - dataset_id: "ds_weather_surface_obs"
+    category: "WEATHER"
+    dataset_name: "Surface Meteorological Observations & Reanalysis"
+    source_provider: "India Meteorological Department (IMD) / Open-Meteo Historical Archive / ERA5"
+    access_url: "https://open-meteo.com/en/docs"
+    access_mechanism: "REST API / Open-Meteo Archive API"
+    local_path_raw: "data/raw/weather/"
+    local_path_sample: "data/sample/weather.csv"
+    local_path_interim: "data/interim/weather_cleaned.parquet"
+    data_type: "Gridded surface time-series / point station"
+    spatial_resolution: "0.1 degree grid (~11 km) anchored to Pune municipal centroid (18.5204 N, 73.8567 E)"
+    temporal_resolution: "1 hour"
+    timestamp_semantics: "Hourly observation bucket (aligned to UTC hourly floor)"
+    geographic_coverage: "Pune Metropolitan Region"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    variables:
+      - name: "temperature"
+        unit: "deg_celsius"
+        valid_range: [-20.0, 60.0]
+        extreme_threshold: 48.0
+        required: true
+        description: "Surface ambient temperature at 2m height"
+      - name: "humidity"
+        unit: "percentage"
+        valid_range: [0.0, 100.0]
+        extreme_threshold: 100.0
+        required: true
+        description: "Relative humidity at 2m height"
+      - name: "wind_speed"
+        unit: "m_s"
+        valid_range: [0.0, 100.0]
+        extreme_threshold: 35.0
+        required: true
+        description: "Horizontal wind speed at 10m height"
+      - name: "wind_direction"
+        unit: "degrees"
+        valid_range: [0.0, 360.0]
+        extreme_threshold: 360.0
+        required: true
+        description: "Wind direction in degrees clockwise FROM which wind blows (0=North, 90=East)"
+      - name: "wind_u"
+        unit: "m_s"
+        valid_range: [-100.0, 100.0]
+        required: true
+        derived: true
+        description: "Orthogonal East-West zonal wind velocity vector (-speed * sin(rad))"
+      - name: "wind_v"
+        unit: "m_s"
+        valid_range: [-100.0, 100.0]
+        required: true
+        derived: true
+        description: "Orthogonal North-South meridional wind velocity vector (-speed * cos(rad))"
+      - name: "rainfall"
+        unit: "mm"
+        valid_range: [0.0, 500.0]
+        extreme_threshold: 150.0
+        required: true
+        description: "Hourly accumulated precipitation"
+      - name: "pressure"
+        unit: "hpa"
+        valid_range: [800.0, 1100.0]
+        extreme_threshold: 1050.0
+        required: false
+        description: "Atmospheric surface barometric pressure"
+    missing_value_conventions: ["NaN", "-999.0", "null", ""]
+    expected_update_frequency: "Hourly"
+    data_status: "historical_and_live"
+    aerosentinel_role: "Boundary layer ventilation, dispersion modelling, wet scavenging, and thermal inversion indicators"
+    potential_quality_issues: "Missing wind direction during calm winds (< 0.2 m/s); spatial smoothing across elevation gradients"
+    potential_leakage_risks: "Using weather forecasts generated after target observation hour T without explicit forecast tagging"
+    mvp_requirement: "REQUIRED"
+    license_constraints: "Open Database License (ODbL) / CC-BY 4.0"
+
+  # =========================================================================
+  # 3. THERMAL ANOMALIES & ACTIVE FIRES
+  # =========================================================================
+  - dataset_id: "ds_fire_firms"
+    category: "FIRE"
+    dataset_name: "NASA FIRMS Thermal Anomalies & Active Fire Detections"
+    source_provider: "NASA Earthdata / LANCE FIRMS (VIIRS & MODIS)"
+    access_url: "https://firms.modaps.eosdis.nasa.gov/"
+    access_mechanism: "FIRMS REST API / Shapefile / CSV Export"
+    local_path_raw: "data/raw/fires/"
+    local_path_sample: "data/sample/fires.csv"
+    data_type: "Spatial point event detections"
+    spatial_resolution: "375m (VIIRS I-band) / 1km (MODIS)"
+    temporal_resolution: "Satellite overpass (1-2 times daily per sensor constellation)"
+    timestamp_semantics: "Instantaneous satellite overpass timestamp (UTC derived from acq_date + acq_time)"
+    geographic_coverage: "Peri-urban Pune and Western Maharashtra agricultural/forest corridors"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    variables:
+      - name: "latitude"
+        unit: "degrees_north"
+        valid_range: [-90.0, 90.0]
+        required: true
+        description: "WGS84 latitude of detected thermal anomaly"
+      - name: "longitude"
+        unit: "degrees_east"
+        valid_range: [-180.0, 180.0]
+        required: true
+        description: "WGS84 longitude of detected thermal anomaly"
+      - name: "confidence"
+        unit: "percentage_or_categorical"
+        valid_range: [0.0, 100.0]
+        required: true
+        description: "Detection confidence score (0-100%) or classification (low, nominal, high)"
+      - name: "frp"
+        unit: "megawatts"
+        valid_range: [0.0, 10000.0]
+        required: false
+        description: "Fire Radiative Power (MW) measuring instantaneous heat release rate"
+      - name: "satellite"
+        unit: "categorical_string"
+        valid_range: ["VIIRS_SNPP", "VIIRS_NOAA20", "MODIS_AQUA", "MODIS_TERRA"]
+        required: true
+        description: "Observing satellite platform"
+      - name: "bright_ti4"
+        unit: "kelvin"
+        valid_range: [200.0, 450.0]
+        required: false
+        description: "VIIRS I-4 thermal brightness temperature"
+    missing_value_conventions: ["null", "", "NaN"]
+    expected_update_frequency: "Every 3 to 6 hours upon ground station downlink and processing"
+    data_status: "historical_and_nrt"
+    aerosentinel_role: "Contributing signal for biomass/crop residue burning evidence; spatial decay & wind advection features"
+    potential_quality_issues: "Optical cloud obscuration; industrial sun glint false positives over metal roofs"
+    potential_leakage_risks: "Associating an afternoon satellite fire detection with morning ground PM2.5 measurements"
+    mvp_requirement: "OPTIONAL_FOR_F0_F1_REQUIRED_PHASE_2"
+    license_constraints: "NASA Earth Science Open Data Policy (Public Domain)"
+
+  # =========================================================================
+  # 4. SATELLITE ATMOSPHERIC INDICATORS
+  # =========================================================================
+  - dataset_id: "ds_satellite_s5p_tropomi"
+    category: "SATELLITE"
+    dataset_name: "Sentinel-5P TROPOMI Atmospheric Vertical Column Densities"
+    source_provider: "European Space Agency (ESA) Copernicus / Google Earth Engine (GEE)"
+    access_url: "https://dataspace.copernicus.eu/"
+    access_mechanism: "GEE Python API / Copernicus Data Space Ecosystem"
+    local_path_raw: "data/raw/satellite/"
+    data_type: "Level-2 / Level-3 Raster & Gridded Columns"
+    spatial_resolution: "3.5km x 5.5km at nadir"
+    temporal_resolution: "Daily overpass (~13:30 local solar time)"
+    timestamp_semantics: "Instantaneous observation overpass timestamp (UTC)"
+    geographic_coverage: "Peninsular India / Maharashtra regional footprint"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    variables:
+      - name: "tropospheric_no2"
+        unit: "mol/m2"
+        valid_range: [-0.0001, 0.005]
+        required: true
+        description: "Tropospheric vertical column density of NO2"
+      - name: "so2_column"
+        unit: "mol/m2"
+        valid_range: [-0.0001, 0.005]
+        required: false
+        description: "Total vertical column density of SO2"
+      - name: "co_column"
+        unit: "mol/m2"
+        valid_range: [0.0, 0.1]
+        required: false
+        description: "Total column density of Carbon Monoxide"
+      - name: "aerosol_index"
+        unit: "dimensionless"
+        valid_range: [-5.0, 15.0]
+        required: false
+        description: "UV Absorbing Aerosol Index (354/388 nm)"
+      - name: "cloud_fraction"
+        unit: "fraction"
+        valid_range: [0.0, 1.0]
+        required: true
+        description: "Effective cloud fraction used for QA filtering (qa_value > 0.50)"
+    missing_value_conventions: ["_FillValue", "NaN", "null"]
+    expected_update_frequency: "Daily (Level 2 Offline available ~12-24 hours post-acquisition)"
+    data_status: "historical_and_cached"
+    aerosentinel_role: "Macro-plume tracking, regional background level, and spatial boundary context"
+    potential_quality_issues: "Heavy cloud masking during summer monsoon (June-September); column values represent atmospheric column, not breathing height"
+    potential_leakage_risks: "Treating a 13:30 snapshot as a continuous ground-level predictor throughout the day without explicit timestamp tagging"
+    mvp_requirement: "OPTIONAL_FOR_F0_F1_REQUIRED_PHASE_2"
+    license_constraints: "Copernicus Open Access Policy (Free and Open)"
+
+  # =========================================================================
+  # 5. CITIZEN HYPERLOCAL REPORTS
+  # =========================================================================
+  - dataset_id: "ds_citizen_hyperlocal_reports"
+    category: "CITIZEN"
+    dataset_name: "Citizen Hyperlocal Pollution Observations & Photos"
+    source_provider: "AeroSentinel Citizen Portal (PostgreSQL backend via Spring Boot API)"
+    access_url: "internal_api"
+    access_mechanism: "REST API / Internal Database Table citizen_reports"
+    local_path_raw: "data/raw/citizen/"
+    local_path_sample: "data/sample/citizen_reports.json"
+    data_type: "Crowdsourced Point Events + Multimodal Media References"
+    spatial_resolution: "Mobile GPS coordinates (~5-15m accuracy)"
+    temporal_resolution: "Event-driven (ad-hoc submission)"
+    timestamp_semantics: "Device submission timestamp (timezone-aware UTC)"
+    geographic_coverage: "Pune Municipal Corporation limits"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    variables:
+      - name: "report_id"
+        unit: "uuid_string"
+        required: true
+        description: "Unique citizen report identifier"
+      - name: "reported_at"
+        unit: "iso_utc_timestamp"
+        required: true
+        description: "Submission timestamp in UTC"
+      - name: "category"
+        unit: "enum"
+        valid_range: ["smoke", "garbage_burning", "dust", "industrial", "traffic", "other"]
+        required: true
+        description: "Observed incident category"
+      - name: "description"
+        unit: "text_string"
+        max_length: 500
+        required: false
+        description: "Citizen provided contextual remarks"
+      - name: "image_ref"
+        unit: "uri_string"
+        required: false
+        description: "URI reference to uploaded photo in object storage"
+      - name: "latitude"
+        unit: "degrees_north"
+        valid_range: [-90.0, 90.0]
+        required: true
+        description: "WGS84 latitude of incident report"
+      - name: "longitude"
+        unit: "degrees_east"
+        valid_range: [-180.0, 180.0]
+        required: true
+        description: "WGS84 longitude of incident report"
+      - name: "device_accuracy_m"
+        unit: "meters"
+        valid_range: [0.0, 500.0]
+        required: false
+        description: "Reported mobile GPS horizontal precision radius"
+    missing_value_conventions: ["null", ""]
+    expected_update_frequency: "Real-time event-driven"
+    data_status: "simulated_and_live"
+    aerosentinel_role: "Hyperlocal qualitative validation signal, Gemini Vision multimodal input, alert evidence corroboration"
+    potential_quality_issues: "Subjective reporting bias, duplicate submissions, GPS drift"
+    potential_leakage_risks: "Using citizen reports as numerical model targets rather than qualitative evidence"
+    mvp_requirement: "OPTIONAL_FOR_F0_F1_REQUIRED_PHASE_4"
+    license_constraints: "Proprietary Project User Data / Terms of Service Agreement"
+
+  # =========================================================================
+  # 6. GIS REFERENCE LAYERS
+  # =========================================================================
+  - dataset_id: "ds_gis_reference_layers"
+    category: "GIS_REFERENCE"
+    dataset_name: "Urban Infrastructure, Municipal Boundaries & Receptors"
+    source_provider: "Pune Municipal Corporation (PMC) / OpenStreetMap (OSM) / CPCB"
+    access_url: "local_geo_directory"
+    access_mechanism: "Static GeoJSON vector files in data/geo/"
+    local_path_geo: "data/geo/"
+    data_type: "Vector Layers (Point, LineString, MultiPolygon)"
+    spatial_resolution: "Sub-meter to 10m topological accuracy"
+    temporal_resolution: "Static snapshot (reviewed quarterly)"
+    timestamp_semantics: "Layer generation release date"
+    geographic_coverage: "Pune Metropolitan Area (PMC + PCMC)"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    layers:
+      - filename: "cities.geojson"
+        description: "City administrative municipal boundary polygon"
+        geometry_type: "MultiPolygon"
+        required: true
+      - filename: "monitoring_stations.geojson"
+        description: "CAAQMS ground monitoring stations with station_id, station_name, coordinates, and metadata"
+        geometry_type: "Point"
+        required: true
+      - filename: "roads.geojson"
+        description: "Primary urban arterials and highway transit corridors"
+        geometry_type: "MultiLineString"
+        required: false
+      - filename: "industrial_zones.geojson"
+        description: "Designated MIDC industrial cluster boundaries"
+        geometry_type: "MultiPolygon"
+        required: false
+      - filename: "agricultural_zones.geojson"
+        description: "Peri-urban agricultural and crop lands"
+        geometry_type: "MultiPolygon"
+        required: false
+      - filename: "schools.geojson"
+        description: "Sensitive exposure receptors (Educational institutions)"
+        geometry_type: "Point"
+        required: false
+      - filename: "hospitals.geojson"
+        description: "Sensitive exposure receptors (Healthcare facilities)"
+        geometry_type: "Point"
+        required: false
+    missing_value_conventions: ["null", ""]
+    expected_update_frequency: "Quarterly / Static"
+    data_status: "historical_and_static"
+    aerosentinel_role: "H3 spatial anchoring, station distance decay, buffer intersections, and urban topology features"
+    potential_quality_issues: "Unregistered informal industrial clusters outside official MIDC polygons; road network generalization"
+    potential_leakage_risks: "None (static geographic features)"
+    mvp_requirement: "REQUIRED"
+    license_constraints: "Open Database License (ODbL) / Public Domain"
+
+  # =========================================================================
+  # 7. PHASE 1 INTERIM & PROCESSED TRAINING DATASETS
+  # =========================================================================
+  - dataset_id: "ds_demo_benchmark_pune"
+    category: "SYNTHETIC_DEMO"
+    dataset_name: "Master Aligned Ground Air & Surface Weather Feature Dataset"
+    source_provider: "AeroSentinel Preprocessing Pipeline (Phase 1)"
+    access_url: "data/processed/"
+    access_mechanism: "Apache Parquet in data/processed/"
+    local_path_raw: "data/sample/"
+    local_path_interim: "data/interim/"
+    local_path_processed: "data/processed/aligned_environmental.parquet"
+    data_type: "Aligned Columnar Parquet Table"
+    spatial_resolution: "Station coordinates bound to H3 Resolution 8 cells (~0.737 km2)"
+    temporal_resolution: "1 hour (72-hour continuous time window)"
+    timestamp_semantics: "Hourly floor binning (UTC with explicit local context preserved)"
+    geographic_coverage: "Pune (Shivajinagar, Hadapsar, Katraj, Wakad, Kothrud)"
+    coordinate_system: "EPSG:4326 (WGS84)"
+    features_included:
+      - "pm25_clean"
+      - "pm10"
+      - "no2"
+      - "so2"
+      - "co"
+      - "o3"
+      - "temperature"
+      - "humidity"
+      - "wind_speed"
+      - "wind_direction"
+      - "wind_u"
+      - "wind_v"
+      - "rainfall"
+      - "pressure"
+      - "hour"
+      - "day_of_week"
+      - "is_weekend"
+      - "hour_sin"
+      - "hour_cos"
+      - "dow_sin"
+      - "dow_cos"
+      - "h3_cell_id"
+    targets_included:
+      - "target_pm25_t_plus_1"
+      - "target_pm25_t_plus_3"
+      - "target_pm25_t_plus_6"
+    partitions:
+      train: "data/processed/train_dataset.parquet (70% chronological split)"
+      val: "data/processed/val_dataset.parquet (15% chronological split)"
+      test: "data/processed/test_dataset.parquet (15% chronological split)"
+    missing_value_conventions: ["NaN"]
+    expected_update_frequency: "Deterministic pipeline execution"
+    data_status: "synthetic"
+    aerosentinel_role: "Validation benchmark for persistence modeling, automated test suites, and supervised training in Phase 3"
+    potential_quality_issues: "Synthetic micro-meteorology lacks unmodeled chaotic turbulent gusts"
+    potential_leakage_risks: "None (enforced via chronological split and backwards-looking lag formulation)"
+    mvp_requirement: "REQUIRED_FOR_TESTS"
+    license_constraints: "Proprietary (Project Internal)"

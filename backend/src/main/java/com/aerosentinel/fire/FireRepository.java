@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface FireRepository extends JpaRepository<FireEvent, UUID> {
     List<FireEvent> findByCityIdOrderByDetectedAtDesc(UUID cityId);
+    List<FireEvent> findByDetectedAtBetween(java.time.Instant start, java.time.Instant end);
 }
