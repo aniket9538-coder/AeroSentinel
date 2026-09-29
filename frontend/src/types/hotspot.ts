@@ -34,6 +34,7 @@ export interface MonitoringCoverageContext {
   nearestStationDistanceKm?: number | null;
   stationsWithin5kmCount?: number | null;
   monitoringCoverageGapFlag?: number | null;
+  spatialCoverageConfidence?: number | null;
 }
 
 export interface SpatialDispersionContext {
@@ -57,6 +58,15 @@ export interface EnvironmentalGisContext {
   fireUpwindAlignmentScore?: number | null;
 }
 
+export interface ConfidenceBreakdown {
+  overallConfidence: number;
+  dataQualityScore: number;
+  spatialCoverageConfidence: number;
+  modelCertainty: number;
+  nearestStationDistanceKm: number;
+  epistemicUncertaintyFlag: number;
+}
+
 export interface HotspotSpatialContext {
   predictionId: string;
   h3Index: string;
@@ -75,6 +85,9 @@ export interface HotspotSpatialContext {
   monitoringCoverage?: MonitoringCoverageContext;
   spatialDispersion?: SpatialDispersionContext;
   environmentalGis?: EnvironmentalGisContext;
+  isHotspot?: boolean;
+  operationalThreshold?: number;
+  confidenceBreakdown?: ConfidenceBreakdown;
 }
 
 export interface HotspotCell {
@@ -92,6 +105,8 @@ export interface HotspotCell {
   engineType?: string;
   featureSnapshotId?: string;
   spatialContext?: HotspotSpatialContext;
+  isHotspot?: boolean;
+  operationalThreshold?: number;
 }
 
 export interface HotspotOverviewResponse {
@@ -104,4 +119,5 @@ export interface HotspotOverviewResponse {
   totalCells: number;
   highRiskCells: number;
   cells: HotspotCell[];
+  operationalThreshold?: number;
 }

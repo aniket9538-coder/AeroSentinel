@@ -34,6 +34,21 @@ app:
   ai-service:
     url: ${AI_SERVICE_URL:http://localhost:8000}
     timeout-ms: ${AI_SERVICE_TIMEOUT_MS:10000}
+  forecast:
+    ai:
+      python-command: ${FORECAST_AI_PYTHON_COMMAND:python}
+      cli-path: ${FORECAST_AI_CLI_PATH:ai-service/ml/inference/predict_forecast_cli.py}
+      timeout-ms: ${FORECAST_AI_TIMEOUT_MS:30000}
+  evidence:
+    ai:
+      python-command: ${EVIDENCE_AI_PYTHON_COMMAND:python}
+      cli-path: ${EVIDENCE_AI_CLI_PATH:ai-service/ml/inference/orchestrate_evidence_cli.py}
+      timeout-ms: ${EVIDENCE_AI_TIMEOUT_MS:15000}
+  citizen:
+    vision:
+      python-command: ${CITIZEN_VISION_PYTHON_COMMAND:python}
+      cli-path: ${CITIZEN_VISION_CLI_PATH:ai-service/ml/inference/vision_cli.py}
+      timeout-ms: ${CITIZEN_VISION_TIMEOUT_MS:30000}
   external:
     cpcb:
       base-url: ${CPCB_BASE_URL:https://api.cpcb.gov.in}

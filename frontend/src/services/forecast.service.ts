@@ -1,9 +1,11 @@
-import apiClient from './api';
-import { CellForecast } from '../types';
+import forecastApi from './forecastApi';
+import { ForecastResponse } from '../types/forecast';
 
 export const forecastService = {
-  getCellForecast: async (h3Index: string): Promise<CellForecast> => {
-    const response = await apiClient.get<CellForecast>(`/forecast/${h3Index}`);
-    return response.data;
+  getCellForecast: async (h3Index: string): Promise<ForecastResponse> => {
+    return forecastApi.getForecast(h3Index);
   },
+  ...forecastApi,
 };
+
+export default forecastService;

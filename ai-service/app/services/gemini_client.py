@@ -11,8 +11,12 @@ import logging
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-from google import genai
-from google.genai import types
+try:
+    from google import genai
+    from google.genai import types
+except (ImportError, AttributeError):
+    genai = None
+    types = None
 
 from app.utils.config import settings
 
@@ -34,8 +38,12 @@ class AeroSentinelGeminiClient:
             or getattr(settings, "GEMINI_MODEL", "gemini-2.0-flash")
         )
         
-        if self.api_key:
-            self.client = genai.Client(api_key=self.api_key)
+        if self.api_key and genai is not None:
+            try:
+                self.client = genai.Client(api_key=self.api_key)
+            except Exception as e:
+                self.client = None
+                logger.warning(f"Failed to initialize Gemini Client: {e}")
         else:
             self.client = None
             logger.warning("Gemini Client initialized without GEMINI_API_KEY. Synthetic fallbacks enabled.")

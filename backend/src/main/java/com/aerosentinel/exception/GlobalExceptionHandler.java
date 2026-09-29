@@ -44,6 +44,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("error", "CONFLICT");
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.FORBIDDEN.value());
+        body.put("error", "FORBIDDEN");
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Map<String, Object>> handleMissingParam(MissingServletRequestParameterException ex) {
         Map<String, Object> body = new HashMap<>();
@@ -62,6 +82,76 @@ public class GlobalExceptionHandler {
         body.put("error", "BAD_REQUEST");
         body.put("message", "Invalid parameter value for '" + ex.getName() + "': " + ex.getValue());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.ParentNotFound.class)
+    public ResponseEntity<Map<String, Object>> handleForecastParentNotFound(com.aerosentinel.forecast.ForecastException.ParentNotFound ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.NotFound.class)
+    public ResponseEntity<Map<String, Object>> handleForecastNotFound(com.aerosentinel.forecast.ForecastException.NotFound ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.ValidationFailed.class)
+    public ResponseEntity<Map<String, Object>> handleForecastValidation(com.aerosentinel.forecast.ForecastException.ValidationFailed ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.ParentContextMismatch.class)
+    public ResponseEntity<Map<String, Object>> handleForecastParentContextMismatch(com.aerosentinel.forecast.ForecastException.ParentContextMismatch ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.AiUnavailable.class)
+    public ResponseEntity<Map<String, Object>> handleForecastAiUnavailable(com.aerosentinel.forecast.ForecastException.AiUnavailable ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.SERVICE_UNAVAILABLE.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.AiTimeout.class)
+    public ResponseEntity<Map<String, Object>> handleForecastAiTimeout(com.aerosentinel.forecast.ForecastException.AiTimeout ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.GATEWAY_TIMEOUT.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(body);
+    }
+
+    @ExceptionHandler(com.aerosentinel.forecast.ForecastException.class)
+    public ResponseEntity<Map<String, Object>> handleForecastGeneric(com.aerosentinel.forecast.ForecastException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", ex.getErrorCode());
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
     @ExceptionHandler(Exception.class)

@@ -15,6 +15,12 @@ public class PollutionEvent {
     @Column(name = "grid_cell_id", nullable = false)
     private UUID gridCellId;
 
+    @Column(name = "h3_index", length = 30)
+    private String h3Index;
+
+    @Column(name = "prediction_id")
+    private UUID predictionId;
+
     @Column(name = "event_code", unique = true, nullable = false, length = 50)
     private String eventCode;
 
@@ -39,6 +45,10 @@ public class PollutionEvent {
     public void setId(UUID id) { this.id = id; }
     public UUID getGridCellId() { return gridCellId; }
     public void setGridCellId(UUID gridCellId) { this.gridCellId = gridCellId; }
+    public String getH3Index() { return h3Index; }
+    public void setH3Index(String h3Index) { this.h3Index = h3Index; }
+    public UUID getPredictionId() { return predictionId; }
+    public void setPredictionId(UUID predictionId) { this.predictionId = predictionId; }
     public String getEventCode() { return eventCode; }
     public void setEventCode(String eventCode) { this.eventCode = eventCode; }
     public String getSeverity() { return severity; }

@@ -14,11 +14,21 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Prototype user details fallback for local development & demonstration
+        String role = "ROLE_CITIZEN";
+        if (username != null) {
+            String lower = username.toLowerCase();
+            if (lower.contains("authority")) {
+                role = "ROLE_AUTHORITY";
+            } else if (lower.contains("admin")) {
+                role = "ROLE_ADMIN";
+            } else if (lower.contains("analyst")) {
+                role = "ROLE_ANALYST";
+            }
+        }
         return new User(
                 username,
                 "{noop}password",
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_CITIZEN"))
+                Collections.singletonList(new SimpleGrantedAuthority(role))
         );
     }
 }

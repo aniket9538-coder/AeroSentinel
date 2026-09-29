@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface CitizenReportRepository extends JpaRepository<CitizenReport, UUID> {
     List<CitizenReport> findByCityIdOrderBySubmittedAtDesc(UUID cityId);
     List<CitizenReport> findByStatus(String status);
+    List<CitizenReport> findByH3IndexOrderBySubmittedAtDesc(String h3Index);
 }

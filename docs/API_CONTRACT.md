@@ -103,17 +103,42 @@ Returns potential pollution hotspots identified by the ML pipeline.
 ```
 
 #### `GET /api/v1/forecast/{h3Index}`
-Returns rolling 1 to 6-hour forecast for a specific H3 hexagonal cell.
+Returns multi-horizon PM2.5 forecasts for a specific H3 hexagonal cell at authoritative horizons ($T+1\text{h}, T+3\text{h}, T+6\text{h}$).  
+*(Note: Legacy 1–6h continuous format with synthetic confidence is SUPERSEDED; see [docs/F4_FORECAST_SPECIFICATION_V1.md](F4_FORECAST_SPECIFICATION_V1.md)).*
+
 ```json
 {
-  "h3Index": "8860144aa1fffff",
-  "generatedAt": "2026-09-23T14:00:00Z",
+  "h3Index": "886196944dfffff",
+  "cityName": "Pune",
+  "generatedAt": "2026-09-27T12:00:00Z",
+  "parentPredictionId": "550e8400-e29b-41d4-a716-446655440000",
+  "featureSnapshotId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
   "unit": "ug/m3",
-  "forecast": [
-    { "targetHour": 1, "predictedPm25": 92.4, "lowerBound": 81.0, "upperBound": 103.8, "confidence": 0.92 },
-    { "targetHour": 2, "predictedPm25": 105.1, "lowerBound": 89.5, "upperBound": 120.7, "confidence": 0.87 },
-    { "targetHour": 3, "predictedPm25": 118.0, "lowerBound": 98.2, "upperBound": 137.8, "confidence": 0.81 }
-  ]
+  "forecasts": [
+    {
+      "horizonHours": 1,
+      "targetTime": "2026-09-27T13:00:00Z",
+      "predictedPm25": 42.15,
+      "lowerBound": 40.31,
+      "upperBound": 44.01
+    },
+    {
+      "horizonHours": 3,
+      "targetTime": "2026-09-27T15:00:00Z",
+      "predictedPm25": 48.70,
+      "lowerBound": 44.80,
+      "upperBound": 51.75
+    },
+    {
+      "horizonHours": 6,
+      "targetTime": "2026-09-27T18:00:00Z",
+      "predictedPm25": 54.30,
+      "lowerBound": 48.78,
+      "upperBound": 59.72
+    }
+  ],
+  "forecastConfidence": null,
+  "modelVersion": "forecast_regressors_v1"
 }
 ```
 

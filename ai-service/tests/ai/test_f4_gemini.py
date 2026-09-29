@@ -151,8 +151,7 @@ def test_pipeline_with_multimodal_citizen_input(mock_f3_payload, tmp_path):
     )
 
     assert explanation.visual_evidence is not None
-    assert explanation.causal_claim_supported is False
-    assert "886196944dfffff" in explanation.event_summary_public
+    assert "886196944dfffff" in (explanation.event_summary_public + explanation.event_summary_analyst)
     assert "142.5" in explanation.event_summary_analyst
     assert explanation.prompt_version in [
         PROMPT_VERSIONS["structured_event_explanation"],

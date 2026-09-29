@@ -759,64 +759,71 @@ or use a documented fallback strategy.
 
 # FEATURE 4 — SHORT-TERM PM2.5 FORECAST
 
+> **[CONTRACT RECONCILIATION NOTICE — F4-P1.1]**  
+> The conceptual notes below reflect early planning. The physical artifact `forecast_regressors_v1.joblib` is authoritative:  
+> - **Horizons**: Discrete $\{1, 3, 6\}$ ($T+1\text{h}, T+3\text{h}, T+6\text{h}$). Continuous 1–6h is **SUPERSEDED**.  
+> - **Features**: Exactly 36 numeric features (`f3-features-v1`). Conceptual lags (`pm25_t`, `pm25_t-1`, `rolling_mean`) are **SUPERSEDED** by `pm25_spatial_lag_mean` and co-pollutants.  
+> - **Confidence**: No probabilistic confidence score; empirical intervals only.  
+> *Authoritative Document*: [docs/F4_FORECAST_SPECIFICATION_V1.md](F4_FORECAST_SPECIFICATION_V1.md)
+
 ## 22. Goal
 
-Forecast PM2.5 for the next:
+Forecast PM2.5 for discrete horizons:
 
 ```text
-1–6 hours
+T+1h, T+3h, T+6h (Discrete multi-horizon regressors)
+[Legacy 1–6h continuous format: SUPERSEDED]
 ```
 
-The documented architecture specifies a baseline plus XGBoost/LightGBM-style approach. The forecast must remain visibly different from observed data.
+The verified architecture uses independent multi-horizon Random Forest Regressors (depth 14, 100 trees).
 
 ---
 
 # 23. F4 End-to-End Flow
 
 ```text
-Historical PM2.5
+Historical PM2.5 & Co-pollutants
 +
 Weather
 +
-H3 context
+H3 context & GIS
 +
-Available additional signals
+FIRMS Thermal Detections
         ↓
-Temporal alignment
+Temporal alignment (UTC Hourly)
         ↓
-Forecast feature engineering
+Forecast feature engineering (36 Features)
         ↓
-Forecast model
+Forecast model (Multi-Horizon RF)
         ↓
-1h
-2h
-3h
-4h
-5h
-6h
+T+1h
+T+3h
+T+6h
         ↓
-Confidence / interval
+Empirical Residual Intervals (P10 - P90) [No synthetic confidence]
         ↓
-Spring Boot
+Spring Boot (ForecastService)
         ↓
-Database
+Database (forecasts table with F3 lineage)
         ↓
-React chart
+React chart (Discrete +1h, +3h, +6h points with uncertainty envelopes)
 ```
 
 ---
 
 # 24. F4 Forecast Features
 
-Initial:
+*(Note: The list below represents early conceptual notes. The authoritative physical artifact consumes exactly the 36-feature vector documented in [docs/F4_FORECAST_SPECIFICATION_V1.md](F4_FORECAST_SPECIFICATION_V1.md)).*
+
+Conceptual Initial Notes [SUPERSEDED]:
 
 ```text
-pm25_t
-pm25_t-1
-pm25_t-2
-rolling_mean
-rolling_max
-change_rate
+pm25_t           <-- SUPERSEDED (Excluded to prevent target leakage; uses pm25_spatial_lag_mean)
+pm25_t-1         <-- SUPERSEDED (Not in trained artifact)
+pm25_t-2         <-- SUPERSEDED (Not in trained artifact)
+rolling_mean     <-- SUPERSEDED (Not in trained artifact)
+rolling_max      <-- SUPERSEDED (Not in trained artifact)
+change_rate      <-- SUPERSEDED (Not in trained artifact)
 
 temperature
 humidity
@@ -912,33 +919,49 @@ No database code should be embedded in the model file.
 
 # 27. F4 Output
 
-AI response:
+*(Note: The example below with `"confidence": 0.74` is SUPERSEDED. The physical artifact does NOT output probabilistic confidence. The authoritative contract sets `forecastConfidence: null` and provides discrete forecasts for $T+1\text{h}, T+3\text{h}, T+6\text{h}$; see [docs/F4_FORECAST_SPECIFICATION_V1.md](F4_FORECAST_SPECIFICATION_V1.md)).*
+
+Conceptual Legacy AI response [SUPERSEDED]:
 
 ```json
 {
-  "modelVersion": "forecast-v1",
-  "generatedAt": "2026-09-23T10:30:00Z",
-  "cellId": "8928308280fffff",
+  "modelVersion": "forecast_regressors_v1",
+  "generatedAt": "2026-09-27T12:00:00Z",
+  "h3Index": "886196944dfffff",
+  "parentPredictionId": "550e8400-e29b-41d4-a716-446655440000",
+  "featureSnapshotId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "status": "SUCCESS",
   "forecasts": [
     {
-      "forecastFor": "2026-09-23T11:30:00Z",
-      "predictedPm25": 124.0,
-      "lowerBound": 112.0,
-      "upperBound": 138.0,
-      "confidence": 0.74
+      "horizonHours": 1,
+      "targetTime": "2026-09-27T13:00:00Z",
+      "predictedPm25": 42.15,
+      "lowerBound": 40.31,
+      "upperBound": 44.01,
+      "unit": "ug/m3"
     },
     {
-      "forecastFor": "2026-09-23T12:30:00Z",
-      "predictedPm25": 137.0,
-      "lowerBound": 119.0,
-      "upperBound": 155.0,
-      "confidence": 0.68
+      "horizonHours": 3,
+      "targetTime": "2026-09-27T15:00:00Z",
+      "predictedPm25": 48.70,
+      "lowerBound": 44.80,
+      "upperBound": 51.75,
+      "unit": "ug/m3"
+    },
+    {
+      "horizonHours": 6,
+      "targetTime": "2026-09-27T18:00:00Z",
+      "predictedPm25": 54.30,
+      "lowerBound": 48.78,
+      "upperBound": 59.72,
+      "unit": "ug/m3"
     }
-  ]
+  ],
+  "forecastConfidence": null
 }
 ```
 
-The bounds are only shown if the chosen modeling method supports them.
+The bounds are empirical residual quantiles ($P10$ to $P90$) with physical clamping ($\ge 0.0\,\mu\text{g/m}^3$). Probabilistic confidence is null.
 
 ---
 

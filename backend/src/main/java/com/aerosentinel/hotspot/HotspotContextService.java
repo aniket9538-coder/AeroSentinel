@@ -128,11 +128,36 @@ public class HotspotContextService {
         // 7. Resolve Environmental GIS & Fire Context
         HotspotSpatialContext.EnvironmentalGisContext gisContext = resolveGisContext(featureMap);
 
-        // 8. Determine Engine Type
-        String engineType = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion()) ? "ML" : "BASELINE";
+        // 8. Determine Engine Type & Threshold Contract
+        boolean isMl = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion());
+        String engineType = isMl ? "ML" : "BASELINE";
+        double threshold = isMl ? 0.20 : 0.40;
+        boolean isHotspot = pred.getRiskScore() >= threshold;
 
         // 9. Compute Freshness
         String freshness = computeFreshness(pred.getPredictedAt(), Instant.now());
+
+        // 10. Compute Confidence Breakdown
+        Double distKm = coverageContext != null ? coverageContext.nearestStationDistanceKm() : null;
+        Integer gapFlag = coverageContext != null ? coverageContext.monitoringCoverageGapFlag() : null;
+        Double spatialCoverageConf = coverageContext != null && coverageContext.spatialCoverageConfidence() != null
+                ? coverageContext.spatialCoverageConfidence()
+                : ((gapFlag != null && gapFlag == 1) || (distKm != null && distKm > 7.0)
+                        ? Math.max(0.15, Math.round(Math.exp(-Math.max(0.0, (distKm != null ? distKm : 10.0) - 5.0) / 25.0) * 1000.0) / 1000.0)
+                        : 0.95);
+
+        double boundaryDistance = Math.abs(pred.getRiskScore() - 0.50);
+        double modelCertainty = Math.round(Math.max(0.50, Math.min(1.0, 0.50 + boundaryDistance)) * 1000.0) / 1000.0;
+        double dataQuality = (coverageContext != null && "VALID".equalsIgnoreCase(coverageContext.dataQuality())) ? 0.90 : 0.50;
+
+        HotspotSpatialContext.ConfidenceBreakdown confidenceBreakdown = new HotspotSpatialContext.ConfidenceBreakdown(
+                pred.getConfidence(),
+                dataQuality,
+                spatialCoverageConf,
+                modelCertainty,
+                distKm != null ? distKm : 0.0,
+                gapFlag != null ? gapFlag : 0
+        );
 
         return new HotspotSpatialContext(
                 pred.getId(),
@@ -151,7 +176,10 @@ public class HotspotContextService {
                 weatherContext,
                 coverageContext,
                 dispersionContext,
-                gisContext
+                gisContext,
+                isHotspot,
+                threshold,
+                confidenceBreakdown
         );
     }
 
@@ -252,11 +280,19 @@ public class HotspotContextService {
             return HotspotSpatialContext.MonitoringCoverageContext.unavailable();
         }
 
+        Double distKm = getDouble(featureMap, "nearest_station_distance_km");
+        Integer stations5km = getInteger(featureMap, "stations_within_5km_count");
+        Integer gapFlag = getInteger(featureMap, "monitoring_coverage_gap_flag");
+        Double spatialCoverageConf = (gapFlag != null && gapFlag == 1) || (distKm != null && distKm > 7.0)
+                ? Math.max(0.15, Math.round(Math.exp(-Math.max(0.0, (distKm != null ? distKm : 10.0) - 5.0) / 25.0) * 1000.0) / 1000.0)
+                : 0.95;
+
         return new HotspotSpatialContext.MonitoringCoverageContext(
                 "VALID",
-                getDouble(featureMap, "nearest_station_distance_km"),
-                getInteger(featureMap, "stations_within_5km_count"),
-                getInteger(featureMap, "monitoring_coverage_gap_flag")
+                distKm,
+                stations5km,
+                gapFlag,
+                spatialCoverageConf
         );
     }
 

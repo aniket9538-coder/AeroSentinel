@@ -6,12 +6,14 @@ interface ErrorStateProps {
   title?: string;
   message?: string;
   onRetry?: () => void;
+  retryLabel?: string;
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({
   title = 'Sensor Telemetry Unreachable',
   message = 'An unexpected timeout occurred while communicating with the atmospheric intelligence service.',
   onRetry,
+  retryLabel = 'Retry Request',
 }) => {
   return (
     <div
@@ -51,7 +53,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       </p>
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry}>
-          <RefreshCw size={14} style={{ marginRight: '0.35rem' }} /> Reconnect Stream
+          <RefreshCw size={14} style={{ marginRight: '0.35rem' }} /> {retryLabel}
         </Button>
       )}
     </div>

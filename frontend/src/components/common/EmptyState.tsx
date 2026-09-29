@@ -8,6 +8,8 @@ interface EmptyStateProps {
   icon?: LucideIcon;
   actionLabel?: string;
   onAction?: () => void;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -16,21 +18,25 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon: Icon = Inbox,
   actionLabel,
   onAction,
+  style = {},
+  className = '',
 }) => {
   return (
     <div
       style={{
-        padding: '3rem 1.5rem',
+        padding: '2.25rem 1.5rem',
         textAlign: 'center',
         border: '1px dashed var(--border-medium)',
         borderRadius: '14px',
         background: 'var(--bg-glass)',
         maxWidth: '480px',
-        margin: '2rem auto',
+        margin: '1rem auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        ...style,
       }}
+      className={className}
     >
       <div
         style={{

@@ -1,11 +1,14 @@
 import React, { useRef, useState } from 'react';
-import { UploadCloud, Camera, Image as ImageIcon, X, Check } from 'lucide-react';
+import { UploadCloud, Camera, Image as ImageIcon, X, Check, AlertCircle } from 'lucide-react';
 import { Button } from '../common/Button';
 
 interface ImageUploaderProps {
   onImageSelected: (file: File) => void;
   onClearImage?: () => void;
 }
+
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageSelected,
@@ -15,8 +18,23 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const processFile = (file: File) => {
+  const validateAndProcessFile = (file: File) => {
+    setValidationError(null);
+
+    // File type validation
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setValidationError('Unsupported file format. Please upload JPG, PNG, or WebP imagery.');
+      return;
+    }
+
+    // File size validation (15MB max)
+    if (file.size > MAX_FILE_SIZE) {
+      setValidationError('Image size exceeds 15MB limit. Please attach a compressed photo.');
+      return;
+    }
+
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
     onImageSelected(file);
@@ -24,7 +42,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
+      validateAndProcessFile(e.target.files[0]);
     }
   };
 
@@ -32,26 +50,29 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
+      validateAndProcessFile(e.dataTransfer.files[0]);
     }
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPreview(null);
+    setValidationError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
     if (onClearImage) onClearImage();
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
         accept="image/jpeg,image/png,image/webp"
         style={{ display: 'none' }}
+        data-testid="citizen-file-input"
+        aria-label="Upload citizen observation photo"
       />
       <input
         type="file"
@@ -60,7 +81,30 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         accept="image/*"
         capture="environment"
         style={{ display: 'none' }}
+        data-testid="citizen-camera-input"
+        aria-label="Capture citizen observation photo with camera"
       />
+
+      {/* Validation Error Feedback */}
+      {validationError && (
+        <div
+          role="alert"
+          style={{
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: 'var(--accent-red, #ef4444)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.8rem',
+          }}
+        >
+          <AlertCircle size={16} style={{ flexShrink: 0 }} />
+          <span>{validationError}</span>
+        </div>
+      )}
 
       {preview ? (
         <div
@@ -68,8 +112,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             position: 'relative',
             borderRadius: '12px',
             overflow: 'hidden',
-            border: '1px solid var(--border-medium)',
-            background: 'var(--bg-surface-elevated)',
+            border: '1px solid var(--border-medium, #cbd5e1)',
+            background: 'var(--bg-surface-elevated, #ffffff)',
           }}
         >
           <img
@@ -107,6 +151,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 cursor: 'pointer',
               }}
               title="Remove photo"
+              aria-label="Remove photo"
             >
               <X size={16} />
             </button>
@@ -120,10 +165,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               justifyContent: 'space-between',
               alignItems: 'center',
               fontSize: '0.8rem',
-              color: 'var(--text-secondary)',
+              color: 'var(--text-secondary, #94a3b8)',
             }}
           >
-            <span style={{ color: 'var(--accent-teal)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <span style={{ color: 'var(--accent-teal, #10b981)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
               <Check size={14} /> Photo Attached
             </span>
             <button
@@ -132,10 +177,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: 'var(--brand-primary)',
+                color: 'var(--brand-primary, #38bdf8)',
                 cursor: 'pointer',
                 fontSize: '0.75rem',
+                fontWeight: 600,
               }}
+              aria-label="Replace attached photo"
             >
               Replace Photo
             </button>
@@ -151,12 +198,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           style={{
-            border: isDragging ? '2px dashed var(--brand-primary)' : '2px dashed var(--border-medium)',
+            border: isDragging ? '2px dashed var(--brand-primary, #38bdf8)' : '2px dashed var(--border-medium, #cbd5e1)',
             borderRadius: '14px',
             padding: '2.5rem 1.5rem',
             textAlign: 'center',
             cursor: 'pointer',
-            background: isDragging ? 'rgba(56, 189, 248, 0.06)' : 'var(--bg-surface-elevated)',
+            background: isDragging ? 'rgba(56, 189, 248, 0.06)' : 'var(--bg-surface-elevated, #f8fafc)',
             transition: 'all 0.2s ease',
             display: 'flex',
             flexDirection: 'column',
@@ -164,18 +211,26 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             justifyContent: 'center',
             gap: '0.75rem',
           }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              fileInputRef.current?.click();
+            }
+          }}
+          aria-label="Upload photo area. Click or drag and drop to attach image."
         >
           <div
             style={{
               width: '56px',
               height: '56px',
               borderRadius: '50%',
-              background: 'var(--brand-surface)',
-              border: '1px solid var(--brand-border)',
+              background: 'var(--brand-surface, rgba(56, 189, 248, 0.1))',
+              border: '1px solid var(--brand-border, rgba(56, 189, 248, 0.25))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--brand-primary)',
+              color: 'var(--brand-primary, #0284c7)',
             }}
           >
             <UploadCloud size={28} />
@@ -202,6 +257,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 e.stopPropagation();
                 cameraInputRef.current?.click();
               }}
+              aria-label="Open camera to take photo"
             >
               <Camera size={14} style={{ marginRight: '0.4rem' }} /> Take Photo
             </Button>

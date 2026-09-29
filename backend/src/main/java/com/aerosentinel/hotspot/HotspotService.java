@@ -99,6 +99,7 @@ public class HotspotService {
 
         List<GridCell> cells = gridRepository.findByCityId(cityId);
         if (cells.isEmpty()) {
+            double emptyThreshold = "hotspot_classifier_v1".equalsIgnoreCase(activeEngine.getEngineVersion()) ? 0.20 : 0.40;
             return new HotspotOverviewResponse(
                     cityId,
                     city.getName(),
@@ -108,7 +109,8 @@ public class HotspotService {
                     "NO_DATA",
                     0,
                     0,
-                    Collections.emptyList()
+                    Collections.emptyList(),
+                    emptyThreshold
             );
         }
 
@@ -144,7 +146,10 @@ public class HotspotService {
                 highRiskCount++;
             }
 
-            String cellEngineType = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion()) ? "ML" : "BASELINE";
+            boolean isMl = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion());
+            String cellEngineType = isMl ? "ML" : "BASELINE";
+            double threshold = isMl ? 0.20 : 0.40;
+            boolean isHotspot = pred.getRiskScore() >= threshold;
 
             dtoList.add(new HotspotCellDto(
                     pred.getH3Index(),
@@ -160,11 +165,14 @@ public class HotspotService {
                     city.getName(),
                     cellEngineType,
                     pred.getFeatureSnapshotId(),
-                    null
+                    null,
+                    isHotspot,
+                    threshold
             ));
         }
 
         String overallFreshness = computeFreshness(mostRecentTime, now);
+        double overviewThreshold = "hotspot_classifier_v1".equalsIgnoreCase(activeEngine.getEngineVersion()) ? 0.20 : 0.40;
 
         return new HotspotOverviewResponse(
                 cityId,
@@ -175,7 +183,8 @@ public class HotspotService {
                 overallFreshness,
                 dtoList.size(),
                 highRiskCount,
-                dtoList
+                dtoList,
+                overviewThreshold
         );
     }
 
@@ -191,7 +200,10 @@ public class HotspotService {
         if (opt.isPresent()) {
             HotspotPrediction pred = opt.get();
             String freshness = computeFreshness(pred.getPredictedAt(), Instant.now());
-            String engineType = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion()) ? "ML" : "BASELINE";
+            boolean isMl = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion());
+            String engineType = isMl ? "ML" : "BASELINE";
+            double threshold = isMl ? 0.20 : 0.40;
+            boolean isHotspot = pred.getRiskScore() >= threshold;
             String cityName = (pred.getCityId() != null)
                     ? cityRepository.findById(pred.getCityId()).map(City::getName).orElse("Pune")
                     : "Pune";
@@ -213,7 +225,9 @@ public class HotspotService {
                     cityName,
                     engineType,
                     pred.getFeatureSnapshotId(),
-                    context
+                    context,
+                    isHotspot,
+                    threshold
             ));
         }
 
@@ -225,7 +239,10 @@ public class HotspotService {
             try {
                 HotspotPrediction pred = generatePredictionForCell(cell, Instant.now(), engine);
                 String freshness = computeFreshness(pred.getPredictedAt(), Instant.now());
-                String engineType = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion()) ? "ML" : "BASELINE";
+                boolean isMl = "hotspot_classifier_v1".equalsIgnoreCase(pred.getModelVersion());
+                String engineType = isMl ? "ML" : "BASELINE";
+                double threshold = isMl ? 0.20 : 0.40;
+                boolean isHotspot = pred.getRiskScore() >= threshold;
                 String cityName = (cell.getCityId() != null)
                         ? cityRepository.findById(cell.getCityId()).map(City::getName).orElse("Pune")
                         : "Pune";
@@ -247,7 +264,9 @@ public class HotspotService {
                         cityName,
                         engineType,
                         pred.getFeatureSnapshotId(),
-                        context
+                        context,
+                        isHotspot,
+                        threshold
                 ));
             } catch (Exception e) {
                 log.warn("On-demand prediction generation failed for cell {}: {}", h3Index, e.getMessage());

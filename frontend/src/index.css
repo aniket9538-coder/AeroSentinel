@@ -170,18 +170,79 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--text-muted);
 }
 
-/* Layout Utilities */
+/* Application Shell & Scroll Architecture */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent browser-level window scrolling */
+}
+
 .app-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
   background-color: var(--bg-primary);
+  position: relative;
+}
+
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 120;
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
   min-width: 0;
+  overflow: hidden;
+  transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Desktop Sidebar Margins */
+@media (min-width: 769px) {
+  .app-main.sidebar-open {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
+  .app-main.sidebar-closed {
+    margin-left: 0px;
+    width: 100%;
+  }
+}
+
+/* Mobile Screens */
+@media (max-width: 768px) {
+  .app-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .app-sidebar {
+    box-shadow: var(--shadow-xl);
+  }
 }
 
 .content-area {

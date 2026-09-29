@@ -306,6 +306,48 @@ class HotspotPhase7ContextTest {
         assertThat(dto.spatialContext()).isNotNull();
         assertThat(dto.spatialContext().predictionId()).isEqualTo(predictionId);
         assertThat(dto.spatialContext().monitoringCoverage().nearestStationDistanceKm()).isEqualTo(0.27);
+
+        // F3 -> F4 Final Contract Assertions
+        assertThat(dto.isHotspot()).isTrue();
+        assertThat(dto.operationalThreshold()).isEqualTo(0.20);
+        assertThat(dto.spatialContext().isHotspot()).isTrue();
+        assertThat(dto.spatialContext().operationalThreshold()).isEqualTo(0.20);
+        assertThat(dto.spatialContext().confidenceBreakdown()).isNotNull();
+        assertThat(dto.spatialContext().confidenceBreakdown().spatialCoverageConfidence()).isEqualTo(0.95);
+        assertThat(dto.spatialContext().monitoringCoverage().spatialCoverageConfidence()).isEqualTo(0.95);
+    }
+
+    @Test
+    @DisplayName("F3 Contract Lock: Operational threshold strictly derives isHotspot for ML and Baseline engines")
+    void testF3ToF4ContractFieldsLocked_ThresholdAndHotspotSemantics() {
+        UUID predId1 = UUID.randomUUID();
+        UUID predId2 = UUID.randomUUID();
+        UUID snapshotId = UUID.randomUUID();
+        Instant now = Instant.now();
+
+        // 1. ML Engine: p = 0.199 (< 0.20) -> isHotspot = false, threshold = 0.20
+        HotspotPrediction predMlBelow = createPrediction(predId1, PUNE_CITY_ID, PUNE_H3, 0.1990, "LOW", 0.85, "hotspot_classifier_v1", now, snapshotId);
+        HotspotSpatialContext ctxMlBelow = contextService.buildSpatialContext(predMlBelow);
+        assertThat(ctxMlBelow.isHotspot()).isFalse();
+        assertThat(ctxMlBelow.operationalThreshold()).isEqualTo(0.20);
+
+        // 2. ML Engine: p = 0.201 (>= 0.20) -> isHotspot = true, threshold = 0.20
+        HotspotPrediction predMlAbove = createPrediction(predId1, PUNE_CITY_ID, PUNE_H3, 0.2010, "MODERATE", 0.85, "hotspot_classifier_v1", now, snapshotId);
+        HotspotSpatialContext ctxMlAbove = contextService.buildSpatialContext(predMlAbove);
+        assertThat(ctxMlAbove.isHotspot()).isTrue();
+        assertThat(ctxMlAbove.operationalThreshold()).isEqualTo(0.20);
+
+        // 3. Baseline Engine: p = 0.399 (< 0.40) -> isHotspot = false, threshold = 0.40
+        HotspotPrediction predBaseBelow = createPrediction(predId2, PUNE_CITY_ID, PUNE_H3, 0.3990, "LOW", 0.70, "hotspot-baseline-v1", now, snapshotId);
+        HotspotSpatialContext ctxBaseBelow = contextService.buildSpatialContext(predBaseBelow);
+        assertThat(ctxBaseBelow.isHotspot()).isFalse();
+        assertThat(ctxBaseBelow.operationalThreshold()).isEqualTo(0.40);
+
+        // 4. Baseline Engine: p = 0.401 (>= 0.40) -> isHotspot = true, threshold = 0.40
+        HotspotPrediction predBaseAbove = createPrediction(predId2, PUNE_CITY_ID, PUNE_H3, 0.4010, "MODERATE", 0.70, "hotspot-baseline-v1", now, snapshotId);
+        HotspotSpatialContext ctxBaseAbove = contextService.buildSpatialContext(predBaseAbove);
+        assertThat(ctxBaseAbove.isHotspot()).isTrue();
+        assertThat(ctxBaseAbove.operationalThreshold()).isEqualTo(0.40);
     }
 
     // =========================================================================

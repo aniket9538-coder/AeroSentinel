@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   LucideIcon,
   Wind,
@@ -17,8 +17,9 @@ import {
   Sliders,
 } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
+import { useAuthorityQueue } from '../../hooks/useAuthorityQueue';
 
-interface NavSection {
+export interface NavSection {
   title: string;
   items: {
     label: string;
@@ -28,7 +29,7 @@ interface NavSection {
   }[];
 }
 
-const NAV_SECTIONS: NavSection[] = [
+export const getNavSections = (activeAlertCount: number = 0): NavSection[] => [
   {
     title: 'MONITOR',
     items: [
@@ -43,14 +44,18 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'INTELLIGENCE',
     items: [
-      { label: 'Evidence', path: '/analyst/evidence', icon: FileSearch },
-      { label: 'Gemini WHY', path: '/analyst/evidence?tab=gemini', icon: Sparkles },
+      { label: 'Evidence & WHY', path: '/analyst/evidence', icon: Sparkles },
     ],
   },
   {
     title: 'ACTION',
     items: [
-      { label: 'Alerts', path: '/authority/alerts', icon: BellRing, badge: '1' },
+      {
+        label: 'Alerts',
+        path: '/authority/alerts',
+        icon: BellRing,
+        badge: activeAlertCount > 0 ? String(activeAlertCount) : undefined,
+      },
       { label: 'Authority', path: '/authority/incidents', icon: ShieldAlert },
       { label: 'Citizen Reports', path: '/citizen/report', icon: Camera },
     ],
@@ -71,23 +76,26 @@ const NAV_SECTIONS: NavSection[] = [
 
 export const Sidebar: React.FC = () => {
   const { sidebarOpen } = useApp();
+  const location = useLocation();
+
+  // Retrieve live authority queue items safely without crashing if API fails
+  const { items } = useAuthorityQueue();
+  const activeAlertCount = useMemo(() => {
+    if (!Array.isArray(items)) return 0;
+    // Semantics matching Alerts authority queue: active non-resolved alert candidates (OPEN / ACKNOWLEDGED)
+    return items.filter((item) => item.status && item.status !== 'RESOLVED').length;
+  }, [items]);
+
+  const navSections = useMemo(() => getNavSections(activeAlertCount), [activeAlertCount]);
 
   return (
     <aside
+      className="app-sidebar"
       style={{
         width: sidebarOpen ? '240px' : '0px',
         minWidth: sidebarOpen ? '240px' : '0px',
-        background: 'var(--bg-surface)',
         borderRight: sidebarOpen ? '1px solid var(--border-subtle)' : 'none',
-        height: '100vh',
-        position: 'sticky',
-        top: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        zIndex: 90,
+        visibility: sidebarOpen ? 'visible' : 'hidden',
       }}
     >
       {/* Brand Header */}
@@ -99,6 +107,7 @@ export const Sidebar: React.FC = () => {
           gap: '0.75rem',
           borderBottom: '1px solid var(--border-subtle)',
           minWidth: '240px',
+          flexShrink: 0,
         }}
       >
         <div
@@ -136,8 +145,8 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Navigation Sections */}
-      <div style={{ padding: '1rem 0.75rem', flex: 1, minWidth: '240px' }}>
-        {NAV_SECTIONS.map((section) => (
+      <div style={{ padding: '1rem 0.75rem', flex: 1, minWidth: '240px', overflowY: 'auto', overflowX: 'hidden' }}>
+        {navSections.map((section) => (
           <div key={section.title} style={{ marginBottom: '1.25rem' }}>
             <div
               style={{
@@ -155,24 +164,32 @@ export const Sidebar: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
               {section.items.map((item) => {
                 const Icon = item.icon;
+                const isCurrentActive =
+                  item.path === '/analyst/evidence'
+                    ? location.pathname === '/analyst/evidence' || location.pathname === '/gemini-why'
+                    : location.pathname === item.path;
+
                 return (
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    style={({ isActive }) => ({
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      fontWeight: isActive ? 600 : 500,
-                      textDecoration: 'none',
-                      color: isActive ? 'var(--brand-primary)' : 'var(--text-secondary)',
-                      background: isActive ? 'var(--brand-surface)' : 'transparent',
-                      borderLeft: isActive ? '3px solid var(--brand-primary)' : '3px solid transparent',
-                      transition: 'all 0.15s ease',
-                    })}
+                    style={({ isActive }) => {
+                      const active = isCurrentActive || isActive;
+                      return {
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.5rem 0.75rem',
+                        borderRadius: '8px',
+                        fontSize: '0.85rem',
+                        fontWeight: active ? 600 : 500,
+                        textDecoration: 'none',
+                        color: active ? 'var(--brand-primary)' : 'var(--text-secondary)',
+                        background: active ? 'var(--brand-surface)' : 'transparent',
+                        borderLeft: active ? '3px solid var(--brand-primary)' : '3px solid transparent',
+                        transition: 'all 0.15s ease',
+                      };
+                    }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                       <Icon size={16} />
@@ -211,6 +228,7 @@ export const Sidebar: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           minWidth: '240px',
+          flexShrink: 0,
         }}
       >
         <span>National Hackathon 2026</span>

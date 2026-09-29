@@ -1,9 +1,16 @@
 from pathlib import Path
+from typing import Optional
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Load .env into os.environ
+load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AeroSentinel"
     ENV: str = "development"
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-2.0-flash"
     
     # Spatial & Temporal Standards
     H3_RESOLUTION: int = 8  # Resolution 8: ~0.737 km2 hexagonal area

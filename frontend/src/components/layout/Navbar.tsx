@@ -9,7 +9,7 @@ import {
   X,
   MapPin,
   ShieldCheck,
-  Radio,
+  RefreshCw,
 } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
 
@@ -27,6 +27,9 @@ export const Navbar: React.FC = () => {
     sidebarOpen,
     backendStatus,
     backendHealth,
+    lastUpdated,
+    refreshData,
+    isLoading,
   } = useApp();
 
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
@@ -49,6 +52,18 @@ export const Navbar: React.FC = () => {
     return 'Command Center';
   };
 
+  const formatTime = (date: Date) => {
+    try {
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
+
   return (
     <header
       style={{
@@ -63,32 +78,47 @@ export const Navbar: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         boxShadow: 'var(--shadow-sm)',
+        flexShrink: 0,
       }}
     >
-      {/* Left: Mobile Toggle & Page Context */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      {/* LEFT: Sidebar Toggle + Brand + Page Context + Version */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
         <button
           onClick={toggleSidebar}
           style={{
-            background: 'transparent',
-            border: 'none',
+            background: 'var(--bg-surface-elevated)',
+            border: '1px solid var(--border-medium)',
             color: 'var(--text-secondary)',
             cursor: 'pointer',
-            padding: '0.4rem',
-            borderRadius: '6px',
+            height: '36px',
+            width: '36px',
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            transition: 'all 0.15s ease',
           }}
           title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span
             style={{
-              fontSize: '1.05rem',
+              fontSize: '0.95rem',
+              fontWeight: 800,
+              fontFamily: 'var(--font-heading)',
+              color: 'var(--brand-primary)',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            AeroSentinel
+          </span>
+          <span style={{ color: 'var(--border-medium)', fontSize: '0.9rem' }}>/</span>
+          <span
+            style={{
+              fontSize: '0.95rem',
               fontWeight: 700,
               fontFamily: 'var(--font-heading)',
               color: 'var(--text-primary)',
@@ -96,13 +126,23 @@ export const Navbar: React.FC = () => {
           >
             {getPageTitle(location.pathname)}
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+          <span
+            style={{
+              fontSize: '0.7rem',
+              color: 'var(--text-muted)',
+              fontWeight: 600,
+              background: 'var(--bg-surface-elevated)',
+              padding: '0.15rem 0.45rem',
+              borderRadius: '6px',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
             v2.4.0
           </span>
         </div>
       </div>
 
-      {/* Center-Left: City Selector */}
+      {/* CENTER: Operating City Selector */}
       <div style={{ position: 'relative' }}>
         <button
           onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
@@ -110,12 +150,13 @@ export const Navbar: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            padding: '0.4rem 0.85rem',
+            height: '36px',
+            padding: '0 0.85rem',
             background: 'var(--bg-surface-elevated)',
             border: '1px solid var(--border-medium)',
-            borderRadius: '10px',
+            borderRadius: '8px',
             color: 'var(--text-primary)',
-            fontSize: '0.875rem',
+            fontSize: '0.85rem',
             fontWeight: 600,
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -203,16 +244,17 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Right Controls: Live Status, Theme, Notifications, User */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+      {/* RIGHT: System Status + Live Timestamp + Sync + Theme + Notifications + Admin */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
         {/* F0 Backend Connectivity Indicator */}
         <div
           style={{
+            height: '36px',
             display: 'flex',
             alignItems: 'center',
             gap: '0.45rem',
-            padding: '0.35rem 0.75rem',
-            borderRadius: '9999px',
+            padding: '0 0.75rem',
+            borderRadius: '8px',
             background:
               !isOnline
                 ? 'rgba(239, 68, 68, 0.12)'
@@ -237,9 +279,9 @@ export const Navbar: React.FC = () => {
                 : backendStatus === 'CONNECTING'
                 ? 'var(--accent-amber)'
                 : 'var(--accent-rose)',
-            fontSize: '0.75rem',
+            fontSize: '0.725rem',
             fontWeight: 700,
-            letterSpacing: '0.04em',
+            letterSpacing: '0.03em',
           }}
           title={
             !isOnline
@@ -269,14 +311,75 @@ export const Navbar: React.FC = () => {
           />
           <span>
             {!isOnline
-              ? 'NETWORK: OFFLINE'
+              ? 'OFFLINE'
               : backendStatus === 'CONNECTED'
               ? 'SYSTEM: CONNECTED'
               : backendStatus === 'CONNECTING'
               ? 'CONNECTING...'
-              : 'BACKEND: OFFLINE'}
+              : 'OFFLINE'}
           </span>
         </div>
+
+        {/* Live Telemetry Updated Badge */}
+        <div
+          style={{
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0 0.75rem',
+            borderRadius: '8px',
+            background: 'var(--brand-surface)',
+            border: '1px solid var(--brand-border)',
+            fontSize: '0.725rem',
+            fontWeight: 700,
+            color: 'var(--brand-primary)',
+            letterSpacing: '0.02em',
+          }}
+          title={`Last synchronization at ${formatTime(lastUpdated)}`}
+        >
+          <span
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--aqi-good)',
+            }}
+          />
+          <span>{isLive ? 'LIVE' : 'SYNCED'} • {formatTime(lastUpdated)}</span>
+        </div>
+
+        {/* Sync Control Button */}
+        <button
+          onClick={refreshData}
+          disabled={isLoading}
+          style={{
+            height: '36px',
+            padding: '0 0.85rem',
+            borderRadius: '8px',
+            background: 'var(--bg-surface-elevated)',
+            border: '1px solid var(--border-medium)',
+            color: 'var(--text-primary)',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            cursor: isLoading ? 'default' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            transition: 'all 0.15s ease',
+            opacity: isLoading ? 0.7 : 1,
+          }}
+          title="Synchronize real-time telemetry from city sensors"
+        >
+          <RefreshCw
+            size={13}
+            style={{
+              animation: isLoading ? 'spin 1s linear infinite' : 'none',
+              color: 'var(--brand-primary)',
+            }}
+          />
+          <span>Sync</span>
+        </button>
 
         {/* Theme Toggle Button */}
         <button
@@ -284,7 +387,7 @@ export const Navbar: React.FC = () => {
           style={{
             width: '36px',
             height: '36px',
-            borderRadius: '10px',
+            borderRadius: '8px',
             background: 'var(--bg-surface-elevated)',
             border: '1px solid var(--border-medium)',
             color: 'var(--text-secondary)',
@@ -298,9 +401,9 @@ export const Navbar: React.FC = () => {
           aria-label="Toggle Theme"
         >
           {theme === 'dark' ? (
-            <Sun size={17} color="#fbbf24" />
+            <Sun size={16} color="#fbbf24" />
           ) : (
-            <Moon size={17} color="var(--brand-primary)" />
+            <Moon size={16} color="var(--brand-primary)" />
           )}
         </button>
 
@@ -311,7 +414,7 @@ export const Navbar: React.FC = () => {
             style={{
               width: '36px',
               height: '36px',
-              borderRadius: '10px',
+              borderRadius: '8px',
               background: 'var(--bg-surface-elevated)',
               border: '1px solid var(--border-medium)',
               color: 'var(--text-secondary)',
@@ -320,18 +423,19 @@ export const Navbar: React.FC = () => {
               justifyContent: 'center',
               cursor: 'pointer',
               position: 'relative',
+              transition: 'all 0.15s ease',
             }}
             title="System Notifications"
             aria-label="Notifications"
           >
-            <Bell size={17} />
+            <Bell size={16} />
             <span
               style={{
                 position: 'absolute',
-                top: '6px',
-                right: '6px',
-                width: '7px',
-                height: '7px',
+                top: '7px',
+                right: '7px',
+                width: '6px',
+                height: '6px',
                 borderRadius: '50%',
                 backgroundColor: 'var(--accent-amber)',
               }}
@@ -347,7 +451,7 @@ export const Navbar: React.FC = () => {
                 width: '300px',
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--border-medium)',
-                borderRadius: '14px',
+                borderRadius: '12px',
                 boxShadow: 'var(--shadow-lg)',
                 padding: '0.85rem',
                 zIndex: 200,
@@ -384,23 +488,24 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* User / Profile Area */}
+        {/* User / Admin Status Badge */}
         <div
           style={{
+            height: '36px',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.35rem 0.75rem',
-            borderRadius: '10px',
+            gap: '0.45rem',
+            padding: '0 0.75rem',
+            borderRadius: '8px',
             background: 'var(--bg-surface-elevated)',
             border: '1px solid var(--border-medium)',
           }}
         >
           <div
             style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '6px',
+              width: '22px',
+              height: '22px',
+              borderRadius: '5px',
               background: 'linear-gradient(135deg, var(--brand-primary), var(--accent-blue))',
               display: 'flex',
               alignItems: 'center',
@@ -408,9 +513,9 @@ export const Navbar: React.FC = () => {
               color: '#ffffff',
             }}
           >
-            <ShieldCheck size={14} />
+            <ShieldCheck size={13} />
           </div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             Admin
           </span>
         </div>

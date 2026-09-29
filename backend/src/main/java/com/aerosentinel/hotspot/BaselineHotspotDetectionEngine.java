@@ -66,6 +66,8 @@ public class BaselineHotspotDetectionEngine implements HotspotDetectionEngine {
             double lowConfidence = 0.35; // Explicitly indicates low confidence due to missing sensors
 
             metadata.put("evaluationMode", "DEGRADED_SPATIAL_FALLBACK");
+            metadata.put("operationalThreshold", 0.40);
+            metadata.put("isHotspot", baseRisk >= 0.40);
             return new HotspotPredictionResult(
                     roundTo4(baseRisk),
                     HotspotRiskLevel.fromScore(baseRisk),
@@ -122,6 +124,8 @@ public class BaselineHotspotDetectionEngine implements HotspotDetectionEngine {
         metadata.put("sPollutant", roundTo4(sPollutant));
         metadata.put("sStagnation", roundTo4(sStagnation));
         metadata.put("sFire", roundTo4(sFire));
+        metadata.put("operationalThreshold", 0.40);
+        metadata.put("isHotspot", riskScore >= 0.40);
 
         return new HotspotPredictionResult(
                 roundTo4(riskScore),

@@ -2,7 +2,7 @@ export type UserRole = 'CITIZEN' | 'ANALYST' | 'AUTHORITY' | 'ADMIN';
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
-export type EventStatus = 'OPEN' | 'ASSIGNED' | 'FIELD_INSPECTION' | 'ACTION_TAKEN' | 'RESOLVED';
+export type EventStatus = 'OPEN' | 'ASSIGNED' | 'IN_INSPECTION' | 'FIELD_INSPECTION' | 'ACTION_TAKEN' | 'RESOLVED' | 'DISMISSED';
 
 export type AlertSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
 
@@ -95,18 +95,43 @@ export interface CellForecast {
   forecast: HourlyForecast[];
 }
 
+export interface VisionAnalysisSummary {
+  analysisId?: string;
+  analysisStatus: 'ANALYZED' | 'FALLBACK' | 'UNAVAILABLE' | string;
+  detectedCategory: string;
+  confidence: number;
+  observations: string[];
+  uncertainty: string[];
+  visualIndicators?: Record<string, boolean>;
+  model?: string;
+  narrativeSummary?: string;
+  modelVersion?: string;
+  promptVersion?: string;
+  analyzedAt?: string;
+}
+
 export interface CitizenReport {
   id: string;
-  cityId: string;
+  reportId?: string;
+  cityId?: string;
+  userId?: string;
   latitude: number;
   longitude: number;
   h3Index?: string;
-  category: 'SMOKE' | 'DUST' | 'BURNING' | 'ODOR' | 'OTHER';
+  category: 'SMOKE' | 'DUST' | 'BURNING' | 'ODOR' | 'OTHER' | string;
   description: string;
   imageUrl?: string;
+  photoUrl?: string;
+  storageKey?: string;
   submittedAt: string;
-  status: 'PENDING' | 'VERIFIED' | 'DISMISSED';
+  observedAt?: string;
+  status: 'PENDING' | 'ANALYZED' | 'VERIFIED' | 'DISMISSED' | string;
+  verificationStatus?: string;
+  createdAt?: string;
+  visionAnalysis?: VisionAnalysisSummary;
 }
+
+export type CitizenReportResponse = CitizenReport;
 
 export interface GeminiAnalysis {
   id: string;
@@ -143,7 +168,7 @@ export interface Alert {
   severity: AlertSeverity;
   title: string;
   message: string;
-  status: 'OPEN' | 'ACKNOWLEDGED' | 'RESOLVED';
+  status: 'OPEN' | 'ACKNOWLEDGED' | 'RESOLVED' | 'DISMISSED';
   createdAt: string;
   acknowledgedAt?: string;
 }
@@ -196,3 +221,18 @@ export * from './grid';
 
 // Canonical F3 Phase 4 Types
 export * from './hotspot';
+
+// Canonical F4 Types
+export * from './forecast';
+
+// Canonical F5 Evidence & WHY Types
+export * from './evidence';
+
+// Canonical F5-P5 Authority Queue Types
+export * from './alert';
+
+// Canonical F5-P6 Field Team & Verification Types
+export * from './inspection';
+
+// Canonical F7 Event Context Types
+export * from './event';

@@ -28,9 +28,34 @@ public record HotspotCellDto(
         String cityName,
         String engineType,
         UUID featureSnapshotId,
-        HotspotSpatialContext spatialContext
+        HotspotSpatialContext spatialContext,
+        boolean isHotspot,
+        Double operationalThreshold
 ) {
-    // Backwards-compatible constructor for existing callers
+    // Backwards-compatible 14-parameter constructor
+    public HotspotCellDto(
+            String h3Index,
+            UUID gridCellId,
+            double riskScore,
+            String riskLevel,
+            double confidence,
+            Instant predictedAt,
+            String freshness,
+            String modelVersion,
+            UUID predictionId,
+            UUID cityId,
+            String cityName,
+            String engineType,
+            UUID featureSnapshotId,
+            HotspotSpatialContext spatialContext
+    ) {
+        this(h3Index, gridCellId, riskScore, riskLevel, confidence, predictedAt, freshness, modelVersion,
+                predictionId, cityId, cityName, engineType, featureSnapshotId, spatialContext,
+                "hotspot_classifier_v1".equalsIgnoreCase(modelVersion) ? riskScore >= 0.20 : riskScore >= 0.40,
+                "hotspot_classifier_v1".equalsIgnoreCase(modelVersion) ? 0.20 : 0.40);
+    }
+
+    // Backwards-compatible 8-parameter constructor
     public HotspotCellDto(
             String h3Index,
             UUID gridCellId,
@@ -42,6 +67,8 @@ public record HotspotCellDto(
             String modelVersion
     ) {
         this(h3Index, gridCellId, riskScore, riskLevel, confidence, predictedAt, freshness, modelVersion,
-                null, null, null, null, null, null);
+                null, null, null, null, null, null,
+                "hotspot_classifier_v1".equalsIgnoreCase(modelVersion) ? riskScore >= 0.20 : riskScore >= 0.40,
+                "hotspot_classifier_v1".equalsIgnoreCase(modelVersion) ? 0.20 : 0.40);
     }
 }

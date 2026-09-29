@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { HotspotCell } from '../../types/hotspot';
 import { getRiskStyle } from '../../utils/hotspotColors';
-import { Flame, Shield, Clock, Cpu, Activity, AlertTriangle, Layers } from 'lucide-react';
+import { Flame, Shield, Clock, Cpu, Activity, AlertTriangle, Layers, Sparkles, TrendingUp } from 'lucide-react';
 
 interface HotspotCellDetailsCardProps {
   cell: HotspotCell | null;
@@ -237,6 +238,63 @@ export const HotspotCellDetailsCard: React.FC<HotspotCellDetailsCardProps> = ({
               {formattedTime}
             </div>
           </div>
+        </div>
+
+        {/* Navigation Action Buttons: Evidence & Gemini WHY, and Forecast */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }}>
+          <Link
+            to={`/analyst/evidence?h3=${encodeURIComponent(cell.h3Index)}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <button
+              type="button"
+              style={{
+                width: '100%',
+                padding: '0.6rem 1rem',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #a855f7, #6366f1)',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: '0.825rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 2px 6px rgba(168, 85, 247, 0.3)',
+              }}
+            >
+              <Sparkles size={15} />
+              <span>Inspect Evidence &amp; Gemini WHY &rarr;</span>
+            </button>
+          </Link>
+          <Link
+            to={`/forecast?h3=${encodeURIComponent(cell.h3Index)}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <button
+              type="button"
+              style={{
+                width: '100%',
+                padding: '0.55rem 1rem',
+                borderRadius: '8px',
+                backgroundColor: 'var(--bg-surface-elevated)',
+                color: 'var(--brand-primary)',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                border: '1px solid var(--border-subtle)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.45rem',
+              }}
+            >
+              <TrendingUp size={14} />
+              <span>View PM2.5 Forecast &rarr;</span>
+            </button>
+          </Link>
         </div>
 
         {/* Operational Disclaimer */}

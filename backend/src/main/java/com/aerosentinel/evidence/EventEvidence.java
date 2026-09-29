@@ -27,6 +27,24 @@ public class EventEvidence {
     @Column(nullable = false)
     private Double weight = 1.0;
 
+    @Column(name = "signal_id", length = 50)
+    private String signalId;
+
+    @Column(name = "data_source", length = 100)
+    private String dataSource;
+
+    @Column(name = "relevance_tier", length = 50)
+    private String relevanceTier;
+
+    @Column(name = "source_ref", length = 100)
+    private String sourceRef;
+
+    @Column(name = "confidence_score")
+    private Double confidenceScore;
+
+    @Column(name = "observed_at")
+    private Instant observedAt;
+
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
 
@@ -44,6 +62,18 @@ public class EventEvidence {
     public void setEvidenceValue(String evidenceValue) { this.evidenceValue = evidenceValue; }
     public Double getWeight() { return weight; }
     public void setWeight(Double weight) { this.weight = weight; }
+    public String getSignalId() { return signalId; }
+    public void setSignalId(String signalId) { this.signalId = signalId; }
+    public String getDataSource() { return dataSource; }
+    public void setDataSource(String dataSource) { this.dataSource = dataSource; }
+    public String getRelevanceTier() { return relevanceTier; }
+    public void setRelevanceTier(String relevanceTier) { this.relevanceTier = relevanceTier; }
+    public String getSourceRef() { return sourceRef; }
+    public void setSourceRef(String sourceRef) { this.sourceRef = sourceRef; }
+    public Double getConfidenceScore() { return confidenceScore; }
+    public void setConfidenceScore(Double confidenceScore) { this.confidenceScore = confidenceScore; }
+    public Instant getObservedAt() { return observedAt; }
+    public void setObservedAt(Instant observedAt) { this.observedAt = observedAt; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

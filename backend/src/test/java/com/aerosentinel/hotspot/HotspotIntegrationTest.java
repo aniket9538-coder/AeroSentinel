@@ -58,11 +58,14 @@ class HotspotIntegrationTest {
                 .andExpect(jsonPath("$.engineType").value("ML"))
                 .andExpect(jsonPath("$.freshness").value(isOneOf("LIVE", "STALE")))
                 .andExpect(jsonPath("$.totalCells").isNumber())
+                .andExpect(jsonPath("$.operationalThreshold").value(0.20))
                 .andExpect(jsonPath("$.cells").isArray())
                 .andExpect(jsonPath("$.cells[0].h3Index").isNotEmpty())
                 .andExpect(jsonPath("$.cells[0].riskScore").isNumber())
                 .andExpect(jsonPath("$.cells[0].riskLevel").isNotEmpty())
-                .andExpect(jsonPath("$.cells[0].confidence").isNumber());
+                .andExpect(jsonPath("$.cells[0].confidence").isNumber())
+                .andExpect(jsonPath("$.cells[0].isHotspot").isBoolean())
+                .andExpect(jsonPath("$.cells[0].operationalThreshold").value(0.20));
     }
 
     @Test
@@ -82,6 +85,11 @@ class HotspotIntegrationTest {
             assertThat(pred.getFeatureSnapshotId()).withFailMessage("FeatureSnapshot reference missing").isNotNull();
         }
 
+        HotspotPrediction sample = predictions.get(0);
+        log.info("DATABASE_ROW_VERIFICATION: id={}, cityId={}, h3Index={}, riskScore={}, riskLevel={}, confidence={}, modelVersion={}, featureSnapshotId={}, predictedAt={}",
+                sample.getId(), sample.getCityId(), sample.getH3Index(), sample.getRiskScore(), sample.getRiskLevel(),
+                sample.getConfidence(), sample.getModelVersion(), sample.getFeatureSnapshotId(), sample.getPredictedAt());
+
         log.info("Verified {} persisted hotspot predictions with valid feature snapshot provenance", predictions.size());
     }
 
@@ -89,16 +97,25 @@ class HotspotIntegrationTest {
     @Order(3)
     @DisplayName("3. Single-cell API: Retrieves latest prediction for specific H3 cell")
     void testGetSingleCellHotspot() throws Exception {
-        mockMvc.perform(get("/api/v1/hotspots/" + PUNE_SHIVAJINAGAR_H3)
+        var result = mockMvc.perform(get("/api/v1/hotspots/" + PUNE_SHIVAJINAGAR_H3)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.h3Index").value(PUNE_SHIVAJINAGAR_H3))
                 .andExpect(jsonPath("$.riskScore").isNumber())
                 .andExpect(jsonPath("$.riskLevel").isNotEmpty())
                 .andExpect(jsonPath("$.confidence").isNumber())
+                .andExpect(jsonPath("$.isHotspot").isBoolean())
+                .andExpect(jsonPath("$.operationalThreshold").value(0.20))
                 .andExpect(jsonPath("$.freshness").value(isOneOf("LIVE", "STALE")))
                 .andExpect(jsonPath("$.spatialContext").exists())
-                .andExpect(jsonPath("$.spatialContext.h3Index").value(PUNE_SHIVAJINAGAR_H3));
+                .andExpect(jsonPath("$.spatialContext.h3Index").value(PUNE_SHIVAJINAGAR_H3))
+                .andExpect(jsonPath("$.spatialContext.isHotspot").isBoolean())
+                .andExpect(jsonPath("$.spatialContext.operationalThreshold").value(0.20))
+                .andExpect(jsonPath("$.spatialContext.confidenceBreakdown").exists())
+                .andExpect(jsonPath("$.spatialContext.monitoringCoverage.spatialCoverageConfidence").isNumber())
+                .andReturn();
+
+        log.info("API_RUNTIME_RESPONSE_EXCERPT: {}", result.getResponse().getContentAsString());
     }
 
     @Test

@@ -40,8 +40,67 @@ public record HotspotSpatialContext(
         WeatherContext weatherContext,
         MonitoringCoverageContext monitoringCoverage,
         SpatialDispersionContext spatialDispersion,
-        EnvironmentalGisContext environmentalGis
+        EnvironmentalGisContext environmentalGis,
+
+        // Hotspot Determination & Threshold Contract (Mandatory F3->F4)
+        boolean isHotspot,
+        Double operationalThreshold,
+        ConfidenceBreakdown confidenceBreakdown
 ) {
+
+    // Backwards-compatible 17-parameter constructor
+    public HotspotSpatialContext(
+            UUID predictionId,
+            String h3Index,
+            UUID cityId,
+            String cityName,
+            UUID featureSnapshotId,
+            Instant predictedAt,
+            double riskScore,
+            String riskLevel,
+            double confidence,
+            String engineType,
+            String modelVersion,
+            String freshness,
+            AirContext airContext,
+            WeatherContext weatherContext,
+            MonitoringCoverageContext monitoringCoverage,
+            SpatialDispersionContext spatialDispersion,
+            EnvironmentalGisContext environmentalGis
+    ) {
+        this(predictionId, h3Index, cityId, cityName, featureSnapshotId, predictedAt,
+                riskScore, riskLevel, confidence, engineType, modelVersion, freshness,
+                airContext, weatherContext, monitoringCoverage, spatialDispersion, environmentalGis,
+                "hotspot_classifier_v1".equalsIgnoreCase(modelVersion) ? riskScore >= 0.20 : riskScore >= 0.40,
+                "hotspot_classifier_v1".equalsIgnoreCase(modelVersion) ? 0.20 : 0.40,
+                ConfidenceBreakdown.defaultForConfidence(confidence,
+                        monitoringCoverage != null ? monitoringCoverage.nearestStationDistanceKm() : null,
+                        monitoringCoverage != null ? monitoringCoverage.monitoringCoverageGapFlag() : null)
+        );
+    }
+
+    public record ConfidenceBreakdown(
+            Double overallConfidence,
+            Double dataQualityScore,
+            Double spatialCoverageConfidence,
+            Double modelCertainty,
+            Double nearestStationDistanceKm,
+            Integer epistemicUncertaintyFlag
+    ) {
+        public static ConfidenceBreakdown defaultForConfidence(double confidence, Double distanceKm, Integer gapFlag) {
+            double covConf = (gapFlag != null && gapFlag == 1) || (distanceKm != null && distanceKm > 7.0)
+                    ? Math.max(0.15, Math.round(Math.exp(-Math.max(0.0, (distanceKm != null ? distanceKm : 10.0) - 5.0) / 25.0) * 1000.0) / 1000.0)
+                    : 0.95;
+            return new ConfidenceBreakdown(
+                    confidence,
+                    0.90,
+                    covConf,
+                    0.85,
+                    distanceKm != null ? distanceKm : 0.0,
+                    (gapFlag != null && gapFlag == 1) ? 1 : 0
+            );
+        }
+    }
 
     public record AirContext(
             String dataQuality, // "VALID", "MISSING", "UNAVAILABLE"
@@ -88,10 +147,24 @@ public record HotspotSpatialContext(
             String dataQuality, // "VALID", "MISSING", "UNAVAILABLE"
             Double nearestStationDistanceKm,
             Integer stationsWithin5kmCount,
-            Integer monitoringCoverageGapFlag
+            Integer monitoringCoverageGapFlag,
+            Double spatialCoverageConfidence
     ) {
         public static MonitoringCoverageContext unavailable() {
-            return new MonitoringCoverageContext("UNAVAILABLE", null, null, null);
+            return new MonitoringCoverageContext("UNAVAILABLE", null, null, null, null);
+        }
+
+        // Backwards-compatible 4-parameter constructor
+        public MonitoringCoverageContext(
+                String dataQuality,
+                Double nearestStationDistanceKm,
+                Integer stationsWithin5kmCount,
+                Integer monitoringCoverageGapFlag
+        ) {
+            this(dataQuality, nearestStationDistanceKm, stationsWithin5kmCount, monitoringCoverageGapFlag,
+                    (monitoringCoverageGapFlag != null && monitoringCoverageGapFlag == 1) || (nearestStationDistanceKm != null && nearestStationDistanceKm > 7.0)
+                            ? Math.max(0.15, Math.round(Math.exp(-Math.max(0.0, (nearestStationDistanceKm != null ? nearestStationDistanceKm : 10.0) - 5.0) / 25.0) * 1000.0) / 1000.0)
+                            : 0.95);
         }
     }
 

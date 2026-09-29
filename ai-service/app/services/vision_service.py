@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Union, Optional, Dict, Any
 import io
 from PIL import Image
-
-from google.genai import types
+try:
+    from google.genai import types
+except (ImportError, AttributeError):
+    types = None
 
 from app.schemas.gemini_contracts import CitizenVisionAnalysis, VisualIndicators
 from app.services.gemini_client import gemini_client

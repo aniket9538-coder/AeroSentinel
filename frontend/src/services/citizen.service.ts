@@ -6,11 +6,16 @@ export const citizenService = {
     const response = await apiClient.get<CitizenReport[]>(`/citizen/reports?cityId=${cityId}`);
     return response.data;
   },
+  getReportById: async (reportId: string): Promise<CitizenReport> => {
+    const response = await apiClient.get<CitizenReport>(`/citizen/reports/${reportId}`);
+    return response.data;
+  },
   submitReport: async (formData: FormData): Promise<CitizenReport> => {
     const response = await apiClient.post<CitizenReport>('/citizen/reports', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: 35000,
     });
     return response.data;
   },

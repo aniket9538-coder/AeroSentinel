@@ -83,11 +83,20 @@ class AeroSentinelGeminiPipeline:
 
         # 3. Call Gemini if configured, otherwise generate deterministic grounded synthesis
         if gemini_client.is_configured():
-            raw_response = gemini_client.generate_structured_json(
-                contents=user_prompt,
-                system_instruction=EXPLANATION_SYSTEM_INSTRUCTION
-            )
-            explanation = StructuredEventExplanation.model_validate(raw_response)
+            try:
+                raw_response = gemini_client.generate_structured_json(
+                    contents=user_prompt,
+                    system_instruction=EXPLANATION_SYSTEM_INSTRUCTION
+                )
+                explanation = StructuredEventExplanation.model_validate(raw_response)
+            except Exception as exc:
+                logger.warning(
+                    f"Gemini API invocation or validation failed ({exc}). Falling back to deterministic grounded synthesis."
+                )
+                explanation = cls._generate_deterministic_grounded_fallback(
+                    f3_payload=f3_payload,
+                    vision_result=vision_result
+                )
         else:
             explanation = cls._generate_deterministic_grounded_fallback(
                 f3_payload=f3_payload,

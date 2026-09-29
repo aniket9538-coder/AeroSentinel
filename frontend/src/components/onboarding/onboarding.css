@@ -1,0 +1,1759 @@
+/* ==========================================================================
+   AeroSentinel Onboarding & Landing Page Styles
+   Aesthetic: Clean Environmental SaaS, Atmospheric Precision, Light Navy & Cyan
+   ========================================================================== */
+
+.onboarding-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #0f172a;
+  position: relative;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+}
+
+[data-theme="dark"] .onboarding-page {
+  background-color: #070d19;
+  color: #f8fafc;
+}
+
+/* Ambient glow accents */
+.onboarding-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1400px;
+  height: 600px;
+  background: radial-gradient(ellipse at 50% 20%, rgba(2, 132, 199, 0.08) 0%, rgba(6, 182, 212, 0.04) 50%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="dark"] .onboarding-ambient-glow {
+  background: radial-gradient(ellipse at 50% 20%, rgba(56, 189, 248, 0.15) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 75%);
+}
+
+/* Container */
+.onboarding-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Onboarding Header Bar
+   -------------------------------------------------------------------------- */
+.onboarding-header {
+  height: 68px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .onboarding-header {
+  background: rgba(11, 20, 38, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.onboarding-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.onboarding-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.onboarding-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.onboarding-brand-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+[data-theme="dark"] .onboarding-brand-title {
+  color: #f8fafc;
+}
+
+.onboarding-brand-tagline {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #0284c7;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+[data-theme="dark"] .onboarding-brand-tagline {
+  color: #38bdf8;
+}
+
+/* Header City Dropdown */
+.onboarding-city-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+[data-theme="dark"] .onboarding-city-pill {
+  background: #182849;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+.onboarding-city-pill:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+[data-theme="dark"] .onboarding-city-pill:hover {
+  background: #1e3560;
+}
+
+/* Header Right Actions */
+.onboarding-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.onboarding-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+[data-theme="dark"] .onboarding-status-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+.onboarding-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.onboarding-icon-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.45rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.onboarding-icon-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .onboarding-icon-btn:hover {
+  background: #182849;
+  color: #f8fafc;
+}
+
+.onboarding-badge-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .onboarding-user-pill {
+  background: #182849;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+.onboarding-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Section 1: Hero Section — Cinematic Environmental Intelligence Command Center
+   Desktop Layout: Left ~45% / Right ~55%, Viewport Height: ~85–95vh
+   -------------------------------------------------------------------------- */
+.onboarding-hero {
+  min-height: clamp(680px, 92vh, 900px);
+  display: grid;
+  grid-template-columns: minmax(380px, 42%) minmax(0, 58%);
+  gap: 0;
+  align-items: stretch;
+  padding: 0;
+  position: relative;
+  background: #ffffff;
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .onboarding-hero {
+  background: #070d19;
+}
+
+@media (max-width: 1024px) {
+  .onboarding-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 1.5rem 0 2rem 0;
+    gap: 2rem;
+  }
+}
+
+/* Left Story Column (~42%) */
+.hero-story-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 10;
+  max-width: 580px;
+  padding: 2.75rem 1.5rem 2.75rem 2.5rem;
+  position: relative;
+}
+
+.onboarding-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #047857;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
+  align-self: flex-start;
+}
+
+[data-theme="dark"] .onboarding-eyebrow {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+
+.onboarding-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.onboarding-headline {
+  font-family: var(--font-heading);
+  font-size: clamp(2.35rem, 4vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  color: #0f172a;
+  margin-bottom: 1.25rem;
+}
+
+[data-theme="dark"] .onboarding-headline {
+  color: #f8fafc;
+}
+
+.onboarding-headline-accent {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: block;
+}
+
+.onboarding-description {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 2rem;
+  max-width: 540px;
+}
+
+[data-theme="dark"] .onboarding-description {
+  color: #94a3b8;
+}
+
+.onboarding-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.25rem;
+  flex-wrap: wrap;
+}
+
+.onboarding-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.85rem;
+  border-radius: 10px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.38);
+}
+
+.onboarding-btn-primary:hover {
+  background: #0369a1;
+  box-shadow: 0 6px 22px rgba(2, 132, 199, 0.5);
+  transform: translateY(-1px);
+}
+
+.onboarding-btn-demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.65rem;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .onboarding-btn-demo {
+  background: #111d35;
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.onboarding-btn-demo:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+[data-theme="dark"] .onboarding-btn-demo:hover {
+  background: #182849;
+}
+
+.onboarding-btn-demo-icon {
+  color: #0284c7;
+}
+
+/* Real UI Hero Metrics Row */
+.hero-metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  max-width: 580px;
+}
+
+[data-theme="dark"] .hero-metrics-strip {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 640px) {
+  .hero-metrics-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+.hero-metric-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.hero-metric-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-metric-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-metric-val {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+[data-theme="dark"] .hero-metric-val {
+  color: #f8fafc;
+}
+
+.hero-metric-lbl {
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   Right Column (~58%): Clean Satellite Map + Decoupled Floating React Cards
+   -------------------------------------------------------------------------- */
+.hero-visual-col {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  z-index: 2;
+}
+
+/* Atmospheric Ambient Light Halo behind the map (disabled to eliminate vertical boundary) */
+.hero-visual-col::before {
+  display: none;
+}
+
+[data-theme="dark"] .hero-visual-col::before {
+  display: none;
+}
+
+.hero-map-visual-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(640px, 88vh, 860px);
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  overflow: hidden;
+  box-shadow: none;
+  z-index: 1;
+}
+
+[data-theme="dark"] .hero-map-visual-container {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+@media (max-width: 1024px) {
+  .hero-map-visual-container {
+    height: 520px;
+    min-height: 520px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-map-visual-container {
+    height: 440px;
+    min-height: 440px;
+  }
+}
+
+/* Clean Satellite Environmental Map (Layer 1) with tight 20% edge transition */
+.hero-clean-map-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+  background: transparent;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.65) 8%,
+    black 20%,
+    black 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.65) 8%,
+    black 20%,
+    black 100%
+  );
+}
+
+.hero-clean-map-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  display: block;
+  opacity: 1;
+  filter: contrast(1.06) saturate(1.08) brightness(1.0);
+  transition: transform 2.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.8s ease-out;
+}
+
+.visual-mounting .hero-clean-map-img {
+  opacity: 0;
+  transform: scale(1.025);
+}
+
+.visual-loaded .hero-clean-map-img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Atmosphere Overlay (Layer 2) — Organic irregular cloud billows, ZERO white overlay over H3 map */
+.hero-clean-map-atmosphere {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  background: 
+    /* 1. Organic cumulus puff on upper-left ocean (under satellite) */
+    radial-gradient(
+      circle at 8% 18%,
+      rgba(255, 255, 255, 0.88) 0%,
+      rgba(255, 255, 255, 0.4) 30%,
+      transparent 55%
+    ),
+    /* 2. Organic mid-left cloud billow softening transition */
+    radial-gradient(
+      ellipse at 2% 48%,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(240, 249, 255, 0.4) 28%,
+      transparent 50%
+    ),
+    /* 3. Soft cloud billow along lower-left edge */
+    radial-gradient(
+      ellipse at 12% 88%,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(240, 249, 255, 0.5) 24%,
+      transparent 48%
+    ),
+    /* 4. Natural cloud shelf along bottom edge (matches reference) */
+    radial-gradient(
+      ellipse at 50% 98%,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(240, 249, 255, 0.4) 22%,
+      transparent 45%
+    );
+}
+
+[data-theme="dark"] .hero-clean-map-atmosphere {
+  background: 
+    radial-gradient(
+      circle at 8% 18%,
+      rgba(7, 13, 25, 0.85) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 2% 48%,
+      rgba(7, 13, 25, 0.8) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 12% 88%,
+      rgba(7, 13, 25, 0.85) 0%,
+      transparent 45%
+    );
+}
+
+/* Animated Data Connection Lines (Layer 5) */
+.hero-connection-lines-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  transition: opacity 1.8s ease-out 0.6s;
+}
+
+.visual-mounting .hero-connection-lines-svg {
+  opacity: 0;
+}
+
+.visual-loaded .hero-connection-lines-svg {
+  opacity: 1;
+}
+
+.connection-vector {
+  animation: connectionVectorFlow 6s linear infinite;
+}
+
+.vector-satellite {
+  animation-duration: 4.8s;
+}
+
+.vector-weather {
+  animation-duration: 5.6s;
+}
+
+.vector-air {
+  animation-duration: 5.2s;
+}
+
+.vector-citizen {
+  animation-duration: 6.2s;
+}
+
+@keyframes connectionVectorFlow {
+  to {
+    stroke-dashoffset: -50;
+  }
+}
+
+/* Central Hotspot Beacon Pulse (Layer 7) */
+.hero-hotspot-container {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity 1.4s ease-out 0.8s;
+}
+
+.visual-mounting .hero-hotspot-container {
+  opacity: 0;
+}
+
+.visual-loaded .hero-hotspot-container {
+  opacity: 1;
+}
+
+.hotspot-pulse-core {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.85);
+  z-index: 2;
+}
+
+.hotspot-pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1.5px solid rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+}
+
+.hotspot-pulse-ring.ring-1 {
+  animation: hotspotRingExpand 3s cubic-bezier(0.1, 0.4, 0.2, 1) infinite;
+}
+
+.hotspot-pulse-ring.ring-2 {
+  animation: hotspotRingExpand 3s cubic-bezier(0.1, 0.4, 0.2, 1) infinite 1.3s;
+}
+
+@keyframes hotspotRingExpand {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}
+
+.hotspot-beacon-card {
+  display: none; /* Substituted by dedicated HotspotCard in Layer 6 */
+}
+
+/* --------------------------------------------------------------------------
+   Layer 6: The 6 Decoupled React Floating Intelligence Cards
+   -------------------------------------------------------------------------- */
+.floating-intel-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 26px -4px rgba(15, 23, 42, 0.24);
+  padding: 0.5rem 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  z-index: 12;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.9s ease-out;
+  max-width: 225px;
+  animation-name: cardGentleFloat;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+[data-theme="dark"] .floating-intel-card {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.visual-mounting .floating-intel-card {
+  opacity: 0;
+  transform: translateY(15px) scale(0.96);
+}
+
+.visual-loaded .floating-intel-card {
+  opacity: 1;
+}
+
+.floating-intel-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 30px -4px rgba(2, 132, 199, 0.35);
+  z-index: 15;
+}
+
+@keyframes cardGentleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.intel-card-icon-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.intel-card-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.intel-card-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.15;
+}
+
+[data-theme="dark"] .intel-card-title {
+  color: #f8fafc;
+}
+
+.intel-card-sub {
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1.25;
+  margin-top: 1px;
+}
+
+[data-theme="dark"] .intel-card-sub {
+  color: #94a3b8;
+}
+
+.intel-card-thumb-wrap {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.intel-thumb-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intel-thumb-wrap.thumb-satellite-bg {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+}
+
+.intel-thumb-wrap.thumb-weather-bg {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+}
+
+.intel-thumb-wrap.thumb-air-bg {
+  background: linear-gradient(135deg, #064e3b, #047857);
+}
+
+.intel-thumb-wrap.thumb-hotspot-bg {
+  background: linear-gradient(135deg, #450a0a, #7f1d1d);
+}
+
+.intel-thumb-wrap.thumb-citizen-bg {
+  background: linear-gradient(135deg, #581c87, #6b21a8);
+}
+
+/* Floating Active in 3 Cities Card (Card 6) */
+.floating-active-cities-card {
+  position: absolute;
+  background: rgba(11, 20, 38, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  z-index: 14;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  width: 175px;
+  transition: opacity 1s ease-out 1.2s;
+  animation: activeCitiesGlow 5s ease-in-out infinite alternate;
+}
+
+.visual-mounting .floating-active-cities-card {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.visual-loaded .floating-active-cities-card {
+  opacity: 1;
+}
+
+@keyframes activeCitiesGlow {
+  0% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); }
+  100% { box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2); }
+}
+
+.active-cities-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.active-cities-icon {
+  color: var(--brand-primary);
+  opacity: 0.85;
+}
+
+.active-cities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.active-city-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  padding: 0.15rem 0;
+  color: #cbd5e1;
+}
+
+.active-city-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.active-city-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.active-city-name {
+  font-weight: 500;
+}
+
+.active-city-pill {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.active-city-pill.badge-good {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+.active-city-pill.badge-moderate {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+.active-city-pill.badge-poor {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* --------------------------------------------------------------------------
+   Lightweight Platform Walkthrough Modal (Watch Demo)
+   -------------------------------------------------------------------------- */
+.demo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.demo-modal-window {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 540px;
+  padding: 2rem;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(20px) scale(0.97); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.demo-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.demo-modal-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  letter-spacing: 0.06em;
+}
+
+.demo-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.demo-modal-close:hover {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+}
+
+.demo-modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.demo-modal-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+
+.demo-modal-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.demo-flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.demo-step-num {
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--brand-primary);
+}
+
+.demo-step-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-step-content strong {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.demo-step-content span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.demo-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.demo-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  flex: 1;
+}
+
+.demo-action-btn.primary {
+  background: var(--brand-primary);
+  color: #ffffff;
+}
+
+.demo-action-btn.primary:hover {
+  background: var(--brand-hover);
+}
+
+.demo-action-btn.secondary {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+}
+
+.demo-action-btn.secondary:hover {
+  background: var(--border-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility: prefers-reduced-motion Overrides
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-clean-map-img,
+  .hero-connection-lines-svg,
+  .hero-hotspot-container,
+  .floating-intel-card,
+  .floating-active-cities-card {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .connection-vector,
+  .hotspot-pulse-ring,
+  .floating-intel-card,
+  .floating-active-cities-card {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 2: Continuous Climate Intelligence Pipeline
+   -------------------------------------------------------------------------- */
+.onboarding-pipeline-section {
+  padding: 2rem 0 4rem 0;
+}
+
+.onboarding-pipeline-box {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="dark"] .onboarding-pipeline-box {
+  background: #0f1d38;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.3);
+}
+
+.onboarding-pipeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.onboarding-pipeline-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .onboarding-pipeline-title {
+  color: #f8fafc;
+}
+
+.onboarding-pipeline-pill {
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .onboarding-pipeline-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.onboarding-pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .onboarding-pipeline-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .onboarding-pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onboarding-stage-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .onboarding-stage-card {
+  background: #142444;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.onboarding-stage-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .onboarding-stage-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.onboarding-stage-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.onboarding-stage-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.onboarding-stage-num {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.onboarding-stage-name {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+[data-theme="dark"] .onboarding-stage-name {
+  color: #f8fafc;
+}
+
+.onboarding-stage-desc {
+  font-size: 0.8125rem;
+  color: #475569;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+[data-theme="dark"] .onboarding-stage-desc {
+  color: #94a3b8;
+}
+
+.onboarding-stage-tags {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.onboarding-stage-tag {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Section 3: Three Pillars of Climate Action
+   -------------------------------------------------------------------------- */
+.onboarding-pillars-section {
+  padding: 3rem 0 4.5rem 0;
+}
+
+.onboarding-section-title-wrap {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 3rem auto;
+}
+
+.onboarding-section-title {
+  font-family: var(--font-heading);
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+[data-theme="dark"] .onboarding-section-title {
+  color: #f8fafc;
+}
+
+.onboarding-section-sub {
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.onboarding-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+
+@media (max-width: 960px) {
+  .onboarding-pillars-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.onboarding-pillar-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.25s ease;
+}
+
+[data-theme="dark"] .onboarding-pillar-card {
+  background: #0f1d38;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.onboarding-pillar-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 30px -4px rgba(2, 132, 199, 0.15);
+}
+
+[data-theme="dark"] .onboarding-pillar-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.onboarding-pillar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.onboarding-pillar-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.onboarding-pillar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-pillar-tag-name {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.onboarding-pillar-pill {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.onboarding-pillar-heading {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.6rem;
+}
+
+[data-theme="dark"] .onboarding-pillar-heading {
+  color: #f8fafc;
+}
+
+.onboarding-pillar-text {
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+[data-theme="dark"] .onboarding-pillar-text {
+  color: #94a3b8;
+}
+
+.onboarding-pillar-metric-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  font-size: 0.8125rem;
+}
+
+[data-theme="dark"] .onboarding-pillar-metric-box {
+  background: #142444;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.onboarding-pillar-metric-lbl {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.onboarding-pillar-metric-val {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .onboarding-pillar-metric-val {
+  color: #f8fafc;
+}
+
+.onboarding-pillar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0284c7;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.onboarding-pillar-link:hover {
+  color: #0369a1;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Section 4: How AeroSentinel Operates
+   -------------------------------------------------------------------------- */
+.onboarding-ops-section {
+  padding: 2.5rem 0 4.5rem 0;
+}
+
+.onboarding-ops-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  max-width: 780px;
+  margin: 0 auto 2rem auto;
+}
+
+@media (max-width: 640px) {
+  .onboarding-ops-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.onboarding-ops-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  background: #ffffff;
+  color: #64748b;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .onboarding-ops-tab {
+  background: #111d35;
+  color: #94a3b8;
+}
+
+.onboarding-ops-tab.active {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.onboarding-ops-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 6px 24px -2px rgba(15, 23, 42, 0.06);
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+[data-theme="dark"] .onboarding-ops-panel {
+  background: #0f1d38;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 960px) {
+  .onboarding-ops-panel {
+    grid-template-columns: 1fr;
+    padding: 1.75rem;
+  }
+}
+
+.onboarding-ops-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #0284c7;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.onboarding-ops-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.85rem;
+}
+
+[data-theme="dark"] .onboarding-ops-title {
+  color: #f8fafc;
+}
+
+.onboarding-ops-desc {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="dark"] .onboarding-ops-desc {
+  color: #94a3b8;
+}
+
+.onboarding-source-chips {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.onboarding-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .onboarding-source-chip {
+  background: #142444;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.onboarding-fusion-graphic {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: #0a1426;
+  border-radius: 14px;
+  border: 1px solid #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Section 5: Final Call to Action
+   -------------------------------------------------------------------------- */
+.onboarding-cta-section {
+  padding: 2.5rem 0 5rem 0;
+}
+
+.onboarding-cta-card {
+  position: relative;
+  border-radius: 24px;
+  padding: 4.5rem 2rem;
+  text-align: center;
+  overflow: hidden;
+  border: 1px solid #bae6fd;
+  background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 40%, #e0f2fe 100%);
+  box-shadow: 0 10px 30px -4px rgba(2, 132, 199, 0.12);
+}
+
+[data-theme="dark"] .onboarding-cta-card {
+  background: linear-gradient(180deg, #0d2144 0%, #08142b 60%, #0a1936 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.onboarding-cta-bg-mountains {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+[data-theme="dark"] .onboarding-cta-bg-mountains {
+  opacity: 0.18;
+}
+
+.onboarding-cta-content {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.onboarding-cta-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 2.85rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+  line-height: 1.15;
+  margin-bottom: 0.85rem;
+}
+
+[data-theme="dark"] .onboarding-cta-heading {
+  color: #f8fafc;
+}
+
+.onboarding-cta-sub {
+  font-size: 1.05rem;
+  color: #475569;
+  line-height: 1.55;
+  margin-bottom: 2rem;
+}
+
+[data-theme="dark"] .onboarding-cta-sub {
+  color: #94a3b8;
+}
+
+.onboarding-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.95rem 2.25rem;
+  border-radius: 12px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(2, 132, 199, 0.4);
+}
+
+.onboarding-cta-btn:hover {
+  background: #0369a1;
+  box-shadow: 0 6px 26px rgba(2, 132, 199, 0.55);
+  transform: translateY(-2px);
+}

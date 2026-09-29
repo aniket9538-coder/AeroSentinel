@@ -22,7 +22,10 @@ Thumbs.db
 # Environment Variables & Secrets
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
 *.pem
 *.key
 *.p12
@@ -128,3 +131,6 @@ ai-service/models/artifacts/*.joblib
 # Temporary inspection folders
 _blueprint_temp/
 _final_temp/
+scratch/
+backend/uploads/*
+!backend/uploads/.gitkeep
