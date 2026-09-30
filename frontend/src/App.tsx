@@ -13,6 +13,7 @@ import { PollutionMap } from './pages/public/PollutionMap';
 import { Forecast } from './pages/public/Forecast';
 import { Hotspots } from './pages/public/Hotspots';
 import { CitizenReport } from './pages/public/CitizenReport';
+import { MonitoringDashboard } from './pages/public/MonitoringDashboard';
 
 // Analyst Pages (F5 Evidence & AI Reasoning)
 import { AnalystDashboard } from './pages/analyst/AnalystDashboard';
@@ -75,6 +76,9 @@ const AppLayout: React.FC = () => {
             {/* F3 Hotspots & F4 Forecast */}
             <Route path="/hotspots" element={<Hotspots />} />
             <Route path="/forecast" element={<Forecast />} />
+
+            {/* F8 Monitoring Priority & Recommendations */}
+            <Route path="/monitoring" element={<MonitoringDashboard />} />
 
             {/* F6 Citizen Reporting & Evidence Upload */}
             <Route path="/report" element={<CitizenReport />} />

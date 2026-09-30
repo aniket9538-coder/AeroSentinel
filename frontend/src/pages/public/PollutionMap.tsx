@@ -9,6 +9,7 @@ export const PollutionMap: React.FC = () => {
   const [showHotspots, setShowHotspots] = useState(true);
   const [showFires, setShowFires] = useState(true);
   const [showCitizen, setShowCitizen] = useState(true);
+  const [showMonitoring, setShowMonitoring] = useState(false);
 
   // Sample seed data for interactive display
   const sampleStations = [
@@ -31,13 +32,20 @@ export const PollutionMap: React.FC = () => {
       title="Hyperlocal Multi-Layer Spatial Map"
       subtitle="Interactive Uber H3 hexagonal grid overlay with multi-source telemetry"
       action={
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <Button
             size="sm"
             variant={showHotspots ? 'primary' : 'secondary'}
             onClick={() => setShowHotspots(!showHotspots)}
           >
             H3 Risk
+          </Button>
+          <Button
+            size="sm"
+            variant={showMonitoring ? 'primary' : 'secondary'}
+            onClick={() => setShowMonitoring(!showMonitoring)}
+          >
+            Monitoring Gaps
           </Button>
           <Button
             size="sm"
@@ -64,6 +72,7 @@ export const PollutionMap: React.FC = () => {
           showHotspots={showHotspots}
           showFires={showFires}
           showCitizenReports={showCitizen}
+          showMonitoringCoverage={showMonitoring}
         />
       </div>
     </PageContainer>

@@ -15,6 +15,7 @@ import {
   Camera,
   Network,
   Sliders,
+  Radio,
 } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
 import { useAuthorityQueue } from '../../hooks/useAuthorityQueue';
@@ -36,6 +37,7 @@ export const getNavSections = (activeAlertCount: number = 0): NavSection[] => [
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       { label: 'Air Quality', path: '/air-quality', icon: Wind },
       { label: 'Pollution Map', path: '/map', icon: Hexagon },
+      { label: 'Monitoring Priority', path: '/monitoring', icon: Radio },
       { label: 'Weather & Spatial', path: '/weather', icon: CloudSun },
       { label: 'Hotspots', path: '/hotspots', icon: Flame },
       { label: 'Forecast', path: '/forecast', icon: TrendingUp },

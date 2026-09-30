@@ -191,25 +191,11 @@ export interface Inspection {
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
 }
 
-export interface FederatedNode {
-  id: string;
-  nodeName: string;
-  cityId: string;
-  status: 'ONLINE' | 'OFFLINE' | 'TRAINING';
-  modelVersion: string;
-  lastUpdateAt: string;
-}
+// Canonical F9 Federated Network Types
+export * from './federated';
 
-export interface MonitoringRecommendation {
-  h3Index: string;
-  latitude: number;
-  longitude: number;
-  riskScore: number;
-  uncertainty: number;
-  stationDistanceKm: number;
-  priorityScore: number;
-  priorityLevel: 'LOW' | 'MEDIUM' | 'HIGH';
-}
+// Canonical F8 Monitoring Gap & Recommendation Types
+export * from './monitoring';
 
 // Canonical F1 Phase 5/6 Types
 export * from './city';

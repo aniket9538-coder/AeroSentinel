@@ -66,6 +66,7 @@ public class AiServiceHotspotClient {
         this.serviceUrl = serviceUrl;
         this.timeout = Duration.ofMillis(timeoutMs);
         this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(this.timeout)
                 .build();
     }
@@ -139,6 +140,9 @@ public class AiServiceHotspotClient {
 
         // Verify physical joblib exists
         Path artifactPath = cliScript.getParent().getParent().resolve("models/artifacts/hotspot_classifier_v1.joblib").normalize();
+        if (!Files.exists(artifactPath)) {
+            artifactPath = cliScript.getParent().getParent().getParent().resolve("models/artifacts/hotspot_classifier_v1.joblib").normalize();
+        }
         if (!Files.exists(artifactPath)) {
             throw new FileNotFoundException("MODEL_UNAVAILABLE: Physical joblib artifact missing at " + artifactPath);
         }

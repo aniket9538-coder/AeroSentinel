@@ -15,4 +15,7 @@ public interface PollutionEventRepository extends JpaRepository<PollutionEvent, 
     List<PollutionEvent> findByH3IndexOrderByStartedAtDesc(String h3Index);
     Optional<PollutionEvent> findByPredictionId(UUID predictionId);
     List<PollutionEvent> findAllByOrderByStartedAtDesc();
+    default java.util.Optional<PollutionEvent> findByEventId(String eventId) {
+        return findByEventCode(eventId);
+    }
 }

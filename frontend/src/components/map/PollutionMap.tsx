@@ -4,15 +4,17 @@ import L from 'leaflet';
 import * as h3 from 'h3-js';
 import { SensorLayer } from './SensorLayer';
 import { H3RiskLayer, H3CellData } from './H3RiskLayer';
+import { MonitoringCoverageLayer } from './MonitoringCoverageLayer';
 import { FireLayer } from './FireLayer';
 import { CitizenReportLayer } from './CitizenReportLayer';
-import { AirObservation, AirQualityObservationResponse, HotspotPrediction, FireEvent, CitizenReport } from '../../types';
+import { AirObservation, AirQualityObservationResponse, HotspotPrediction, FireEvent, CitizenReport, MonitoringRecommendation } from '../../types';
 import { HotspotCell } from '../../types/hotspot';
 import { GridCellResponse, GridCellObservationResponse } from '../../types/grid';
 import { H3GridLayer } from './H3GridLayer';
 import { useApp } from '../../store/AppContext';
 import { Layers, Activity, Hexagon, CloudRain, Radio } from 'lucide-react';
 import { getMapTileConfig } from '../../utils/mapTileConfig';
+import { monitoringService } from '../../services/monitoring.service';
 
 interface PollutionMapProps {
   center?: [number, number];
@@ -30,6 +32,9 @@ interface PollutionMapProps {
   showHotspots?: boolean;
   showFires?: boolean;
   showCitizenReports?: boolean;
+  showMonitoringCoverage?: boolean;
+  monitoringRecommendations?: MonitoringRecommendation[];
+  onSelectMonitoringRecommendation?: (rec: MonitoringRecommendation) => void;
   height?: string;
   onSelectStation?: (station: any) => void;
   onSelectH3Cell?: (cell: H3CellData) => void;
@@ -182,6 +187,9 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
   showHotspots = true,
   showFires = false,
   showCitizenReports = false,
+  showMonitoringCoverage = false,
+  monitoringRecommendations,
+  onSelectMonitoringRecommendation,
   height = '560px',
   onSelectStation,
   onSelectH3Cell,
@@ -203,12 +211,66 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
   const [layerAirQuality, setLayerAirQuality] = useState(true);
   const [layerH3, setLayerH3] = useState(showHotspots);
   const [layerWeather, setLayerWeather] = useState(false);
+  const [layerMonitoring, setLayerMonitoring] = useState(showMonitoringCoverage ?? false);
+
+  // Recommendations fetch lifecycle for map overlay
+  const [fetchedRecommendations, setFetchedRecommendations] = useState<MonitoringRecommendation[]>([]);
+  const [isMonitoringLoading, setIsMonitoringLoading] = useState<boolean>(false);
+  const [monitoringError, setMonitoringError] = useState<string | null>(null);
 
   useEffect(() => {
     setLayerH3(showHotspots);
   }, [showHotspots]);
 
   const tileConfig = getMapTileConfig(theme);
+
+  useEffect(() => {
+    if (showMonitoringCoverage !== undefined) {
+      setLayerMonitoring(showMonitoringCoverage);
+    }
+  }, [showMonitoringCoverage]);
+
+  useEffect(() => {
+    // If external recommendations are provided, prioritize them
+    if (monitoringRecommendations !== undefined) {
+      setFetchedRecommendations(monitoringRecommendations);
+      return;
+    }
+
+    // Only fetch when layer is active and a valid cityId exists
+    if (!layerMonitoring || !effectiveCityId) {
+      setFetchedRecommendations([]);
+      return;
+    }
+
+    let isMounted = true;
+    setIsMonitoringLoading(true);
+    setMonitoringError(null);
+
+    monitoringService
+      .getRecommendations(effectiveCityId)
+      .then((data) => {
+        if (isMounted) {
+          setFetchedRecommendations(Array.isArray(data) ? data : []);
+          setIsMonitoringLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('Failed to load monitoring recommendations for map:', err);
+          setMonitoringError('Failed to load monitoring recommendations');
+          setFetchedRecommendations([]);
+          setIsMonitoringLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [layerMonitoring, effectiveCityId, monitoringRecommendations]);
+
+  const recommendationsToUse =
+    monitoringRecommendations !== undefined ? monitoringRecommendations : fetchedRecommendations;
 
   return (
     <div
@@ -256,6 +318,8 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
 
         <button
           onClick={() => setLayerStations(!layerStations)}
+          aria-pressed={layerStations}
+          aria-label="Toggle Stations layer"
           style={{
             padding: '0.25rem 0.6rem',
             borderRadius: '6px',
@@ -277,6 +341,8 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
 
         <button
           onClick={() => setLayerAirQuality(!layerAirQuality)}
+          aria-pressed={layerAirQuality}
+          aria-label="Toggle Air Quality layer"
           style={{
             padding: '0.25rem 0.6rem',
             borderRadius: '6px',
@@ -298,6 +364,8 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
 
         <button
           onClick={() => setLayerH3(!layerH3)}
+          aria-pressed={layerH3}
+          aria-label="Toggle H3 Grid layer"
           style={{
             padding: '0.25rem 0.6rem',
             borderRadius: '6px',
@@ -318,7 +386,34 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
         </button>
 
         <button
+          onClick={() => setLayerMonitoring(!layerMonitoring)}
+          aria-pressed={layerMonitoring}
+          aria-label="Toggle Monitoring Gaps layer"
+          title="Toggle F8 Monitoring Priorities & Coverage Gaps overlay"
+          style={{
+            padding: '0.25rem 0.6rem',
+            borderRadius: '6px',
+            fontSize: '0.725rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            border: layerMonitoring
+              ? '1px solid rgba(236, 72, 153, 0.4)'
+              : '1px solid var(--border-subtle)',
+            background: layerMonitoring ? 'rgba(236, 72, 153, 0.12)' : 'transparent',
+            color: layerMonitoring ? '#ec4899' : 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.3rem',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <Radio size={12} /> Monitoring Gaps
+        </button>
+
+        <button
           onClick={() => setLayerWeather(!layerWeather)}
+          aria-pressed={layerWeather}
+          aria-label="Toggle Weather layer"
           style={{
             padding: '0.25rem 0.6rem',
             borderRadius: '6px',
@@ -338,6 +433,112 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
           <CloudRain size={12} /> Weather
         </button>
       </div>
+
+      {/* Non-blocking Monitoring Status Badges */}
+      {layerMonitoring && isMonitoringLoading && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'absolute',
+            top: '52px',
+            right: '12px',
+            zIndex: 1000,
+            background: 'var(--bg-surface)',
+            padding: '0.35rem 0.65rem',
+            borderRadius: '8px',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-sm)',
+            fontSize: '0.725rem',
+            color: 'var(--brand-primary)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+          }}
+        >
+          <span className="animate-spin" style={{ display: 'inline-block' }}>⟳</span>
+          <span>Loading monitoring priorities...</span>
+        </div>
+      )}
+
+      {layerMonitoring && !isMonitoringLoading && monitoringError && (
+        <div
+          role="alert"
+          style={{
+            position: 'absolute',
+            top: '52px',
+            right: '12px',
+            zIndex: 1000,
+            background: 'var(--bg-surface)',
+            padding: '0.35rem 0.65rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: 'var(--shadow-sm)',
+            fontSize: '0.725rem',
+            color: '#ef4444',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+          }}
+        >
+          <span>{monitoringError}</span>
+          <button
+            onClick={() => {
+              if (effectiveCityId) {
+                setIsMonitoringLoading(true);
+                setMonitoringError(null);
+                monitoringService
+                  .getRecommendations(effectiveCityId)
+                  .then((data) => {
+                    setFetchedRecommendations(Array.isArray(data) ? data : []);
+                    setIsMonitoringLoading(false);
+                  })
+                  .catch((err) => {
+                    console.error('Retry failed:', err);
+                    setMonitoringError('Failed to load monitoring recommendations');
+                    setIsMonitoringLoading(false);
+                  });
+              }
+            }}
+            style={{
+              cursor: 'pointer',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--brand-primary)',
+              textDecoration: 'underline',
+              fontSize: '0.725rem',
+              fontWeight: 600,
+              padding: 0,
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {layerMonitoring && !isMonitoringLoading && !monitoringError && recommendationsToUse.length === 0 && (
+        <div
+          role="status"
+          style={{
+            position: 'absolute',
+            top: '52px',
+            right: '12px',
+            zIndex: 1000,
+            background: 'var(--bg-surface)',
+            padding: '0.35rem 0.65rem',
+            borderRadius: '8px',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-sm)',
+            fontSize: '0.725rem',
+            color: 'var(--text-muted)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+          }}
+        >
+          <span>No monitoring priorities available for this city.</span>
+        </div>
+      )}
 
       {/* Map Canvas */}
       <MapContainer
@@ -359,6 +560,15 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
           url={tileConfig.url}
           maxZoom={tileConfig.maxZoom}
         />
+
+        {/* F8 Monitoring Coverage Layer (Rendered below station markers to keep stations clickable) */}
+        {layerMonitoring && (
+          <MonitoringCoverageLayer
+            recommendations={recommendationsToUse}
+            onSelectRecommendation={onSelectMonitoringRecommendation}
+            selectedH3Index={activeSelectedId}
+          />
+        )}
 
         {layerStations && (
           <SensorLayer stations={stations} onSelectStation={onSelectStation} />
@@ -407,7 +617,7 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
           fontSize: '0.725rem',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ffffff', border: '1px solid #38bdf8' }} />
             <span>CAAQMS Ground Station</span>
@@ -416,6 +626,25 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
             <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: 'rgba(14, 165, 233, 0.35)', border: '1px solid #0ea5e9' }} />
             <span>H3 Grid Cell</span>
           </div>
+
+          {/* F8 Monitoring Priority Legend Items */}
+          {layerMonitoring && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', marginLeft: '0.35rem' }}>
+              <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Monitoring Priority:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#ec4899', border: '1px dashed #be185d' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>HIGH</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#a855f7', border: '1px dashed #7e22ce' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>MEDIUM</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#6366f1', border: '1px dashed #4338ca' }} />
+                <span style={{ color: 'var(--text-secondary)' }}>LOW</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
