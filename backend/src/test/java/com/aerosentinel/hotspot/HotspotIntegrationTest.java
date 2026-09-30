@@ -81,7 +81,7 @@ class HotspotIntegrationTest {
             assertThat(pred.getH3Index()).isNotNull();
             assertThat(pred.getRiskScore()).isBetween(0.0, 1.0);
             assertThat(pred.getConfidence()).isBetween(0.0, 1.0);
-            assertThat(pred.getModelVersion()).isIn("hotspot-baseline-v1", "hotspot_classifier_v1");
+            assertThat(pred.getModelVersion()).isIn("hotspot-baseline-v1", "hotspot_classifier_v1", "f3_classifier_v1");
             assertThat(pred.getFeatureSnapshotId()).withFailMessage("FeatureSnapshot reference missing").isNotNull();
         }
 
