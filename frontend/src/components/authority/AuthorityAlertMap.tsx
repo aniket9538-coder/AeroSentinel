@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Polygon, CircleMarker, Popup, useMap } from 'r
 import { MapPin, AlertCircle, Compass, Layers } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
 import { getH3BoundarySafe, getH3CenterSafe } from '../../utils/h3Spatial';
+import { getMapTileConfig } from '../../utils/mapTileConfig';
 
 export { getH3BoundarySafe, getH3CenterSafe };
 
@@ -87,11 +88,7 @@ export const AuthorityAlertMap: React.FC<AuthorityAlertMapProps> = ({
     }
   }, [severity]);
 
-  const tileUrl =
-    (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_MAP_TILE_URL) ||
-    (theme === 'dark'
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+  const tileConfig = useMemo(() => getMapTileConfig(theme), [theme]);
 
   // Fallback state when H3 is invalid or empty
   if (!h3Index || !boundary || !center) {
@@ -190,8 +187,9 @@ export const AuthorityAlertMap: React.FC<AuthorityAlertMapProps> = ({
           style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url={tileUrl}
+            attribution={tileConfig.attribution}
+            url={tileConfig.url}
+            maxZoom={tileConfig.maxZoom}
           />
           <MapCenterController center={effectiveCenter} zoom={14} />
 

@@ -4,6 +4,7 @@ import L from 'leaflet';
 import * as h3 from 'h3-js';
 import { MapPin, RotateCcw, Crosshair, AlertCircle, Info } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
+import { getMapTileConfig } from '../../utils/mapTileConfig';
 
 export interface LocationPickerMapProps {
   latitude: number;
@@ -121,11 +122,7 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
     }
   }, [hasValidCoords, latitude, longitude]);
 
-  const tileUrl =
-    (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_MAP_TILE_URL) ||
-    (theme === 'dark'
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+  const tileConfig = useMemo(() => getMapTileConfig(theme), [theme]);
 
   const defaultCenter: [number, number] = useMemo(() => {
     if (hasValidCoords) return [latitude, longitude];
@@ -251,8 +248,9 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
           style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url={tileUrl}
+            attribution={tileConfig.attribution}
+            url={tileConfig.url}
+            maxZoom={tileConfig.maxZoom}
           />
           <MapCenterController center={defaultCenter} zoom={defaultZoom} />
           <MapClickHandler onSelectLocation={onSelectLocation} />

@@ -12,6 +12,7 @@ import { GridCellResponse, GridCellObservationResponse } from '../../types/grid'
 import { H3GridLayer } from './H3GridLayer';
 import { useApp } from '../../store/AppContext';
 import { Layers, Activity, Hexagon, CloudRain, Radio } from 'lucide-react';
+import { getMapTileConfig } from '../../utils/mapTileConfig';
 
 interface PollutionMapProps {
   center?: [number, number];
@@ -207,10 +208,7 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
     setLayerH3(showHotspots);
   }, [showHotspots]);
 
-  const tileUrl =
-    theme === 'dark'
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  const tileConfig = getMapTileConfig(theme);
 
   return (
     <div
@@ -357,8 +355,9 @@ export const PollutionMap: React.FC<PollutionMapProps> = ({
           selectedCellId={activeSelectedId}
         />
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url={tileUrl}
+          attribution={tileConfig.attribution}
+          url={tileConfig.url}
+          maxZoom={tileConfig.maxZoom}
         />
 
         {layerStations && (
