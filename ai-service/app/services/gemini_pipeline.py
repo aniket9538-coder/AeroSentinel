@@ -89,6 +89,9 @@ class AeroSentinelGeminiPipeline:
                     system_instruction=EXPLANATION_SYSTEM_INSTRUCTION
                 )
                 explanation = StructuredEventExplanation.model_validate(raw_response)
+                h3_cell = f3_payload.get("h3_cell_id")
+                if h3_cell and h3_cell not in (explanation.event_summary_public + explanation.event_summary_analyst):
+                    explanation.event_summary_analyst = f"F3 Assessment for H3 Cell {h3_cell}: " + explanation.event_summary_analyst
             except Exception as exc:
                 logger.warning(
                     f"Gemini API invocation or validation failed ({exc}). Falling back to deterministic grounded synthesis."

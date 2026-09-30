@@ -2,6 +2,8 @@ server:
   port: ${PORT:8080}
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: aerosentinel-backend
   profiles:
@@ -80,4 +82,13 @@ app:
   spatial:
     h3:
       resolution: ${AEROSENTINEL_H3_RESOLUTION:8}
+  monitoring:
+    priority:
+      risk-weight: ${MONITORING_RISK_WEIGHT:0.45}
+      uncertainty-weight: ${MONITORING_UNCERTAINTY_WEIGHT:0.30}
+      distance-weight: ${MONITORING_DISTANCE_WEIGHT:0.25}
+      uncertainty-max-interval-width: ${MONITORING_UNCERTAINTY_MAX_INTERVAL_WIDTH:20.0}
+      distance-max-km: ${MONITORING_DISTANCE_MAX_KM:20.0}
+      medium-threshold: ${MONITORING_MEDIUM_THRESHOLD:40}
+      high-threshold: ${MONITORING_HIGH_THRESHOLD:70}
 

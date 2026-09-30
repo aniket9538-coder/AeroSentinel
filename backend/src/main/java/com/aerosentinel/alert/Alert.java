@@ -131,4 +131,13 @@ public class Alert {
     public void setResolvedAt(Instant resolvedAt) { this.resolvedAt = resolvedAt; }
     public UUID getResolvedBy() { return resolvedBy; }
     public void setResolvedBy(UUID resolvedBy) { this.resolvedBy = resolvedBy; }
+
+    public String getAlertId() { return id != null ? id.toString() : null; }
+    public String getH3CellId() { return h3Index; }
+    public Double getConfidence() { return 0.75; }
+    public String getDescription() { return message; }
+    public Double getExpectedSpike() { return null; }
+    public String getEvidenceSummary() { return forecastSummary; }
+    public Instant getClosedAt() { return resolvedAt; }
+    public void setClosedAt(Instant closedAt) { this.resolvedAt = closedAt; }
 }

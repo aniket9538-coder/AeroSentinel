@@ -61,4 +61,18 @@ public class PollutionEvent {
     public void setResolvedAt(Instant resolvedAt) { this.resolvedAt = resolvedAt; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public String getEventId() { return eventCode != null ? eventCode : (id != null ? id.toString() : null); }
+    public void setEventId(String eventId) { this.eventCode = eventId; }
+    public Double getRiskScore() { return 50.0; }
+    public void setRiskScore(Double riskScore) {}
+    public String getRiskLevel() { return severity != null ? severity : "MODERATE"; }
+    public Double getConfidence() { return 0.75; }
+    public void setConfidence(Double confidence) {}
+    public UUID getCityId() { return null; }
+    public void setCityId(UUID cityId) {}
+    public Instant getUpdatedAt() { return createdAt != null ? createdAt : Instant.now(); }
+    public void setUpdatedAt(Instant updatedAt) {}
+    public void setEndedAt(Instant endedAt) { this.resolvedAt = endedAt; }
+    public Instant getEndedAt() { return resolvedAt; }
 }

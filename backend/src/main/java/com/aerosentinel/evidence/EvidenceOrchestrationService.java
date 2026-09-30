@@ -738,7 +738,7 @@ public class EvidenceOrchestrationService {
      * Retrieves existing persisted evidence dossier for an H3 cell without invoking expensive AI subprocesses.
      * Prefers in-memory cache and PostgreSQL persisted records, falling back to orchestration only when no data exists.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public EvidenceSummaryResponse getPersistedOrOrchestratedEvidence(String h3Index) {
         if (h3Index == null || h3Index.trim().length() < 10) {
             throw new ValidationException("Invalid H3 index: " + h3Index);

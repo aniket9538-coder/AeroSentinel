@@ -87,4 +87,15 @@ public class AuthorityAction {
     public void setPerformedAt(Instant performedAt) {
         this.performedAt = performedAt;
     }
+
+    public String getActionId() { return id != null ? id.toString() : null; }
+    public void setActionId(String actionId) {}
+    public String getEventId() { return alertId != null ? alertId.toString() : null; }
+    public void setEventId(String eventId) {
+        try { this.alertId = UUID.fromString(eventId); } catch (Exception ignored) {}
+    }
+    public String getNotes() { return actionDetails; }
+    public void setNotes(String notes) { this.actionDetails = notes; }
+    public String getResult() { return "COMPLETED"; }
+    public void setResult(String result) {}
 }

@@ -76,4 +76,7 @@ public class CitizenReport {
     public void setVerificationStatus(String verificationStatus) { this.verificationStatus = verificationStatus; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public String getReportId() { return id != null ? id.toString() : null; }
+    public Instant getUpdatedAt() { return createdAt != null ? createdAt : Instant.now(); }
 }

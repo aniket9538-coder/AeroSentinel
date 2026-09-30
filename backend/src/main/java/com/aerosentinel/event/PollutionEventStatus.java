@@ -85,4 +85,22 @@ public enum PollutionEventStatus {
                 throw new IllegalStateException("Unknown lifecycle state: " + cur);
         }
     }
+
+    public boolean canTransitionTo(PollutionEventStatus target) {
+        try {
+            validateTransition(this.name(), target.name());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean canTransition(String current, String target) {
+        try {
+            validateTransition(current, target);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
